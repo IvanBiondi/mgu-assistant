@@ -1,0 +1,67 @@
+name: Bug report / Segnalazione problema
+description: Report a reproducible problem without private vehicle data or keys.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English or Italian reports are welcome. Read the compatibility and troubleshooting documents first.
+        Do not repeat a vehicle write to create this report. Do not upload keys, certificates, VINs, coding backups, full logs or state folders.
+        For vulnerabilities or sensitive information, follow SECURITY.md instead.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before reporting / Prima di inviare
+      options:
+        - label: I read the compatibility and troubleshooting documentation.
+          required: true
+        - label: I own the vehicle or am authorized to work on it, or this report uses demo/simulated data only.
+          required: true
+        - label: I removed VINs, keys, certificates, backups and personal information from this report and attachments.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Application version / Versione
+      description: Include release ZIP or source build, and commit if known.
+      placeholder: v0.2.0-beta.1, release ZIP
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: PC and connection / PC e collegamento
+      description: Windows version, Ethernet adapter, ENET arrangement, real or demo mode. No personal paths or network secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: hu
+    attributes:
+      label: HU information / Informazioni HU
+      description: Optional model/year and BTLD/HWEL/CAFD identifiers and versions from a reading already performed. No VIN; do not perform a write to collect this information.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Action and reproduction / Azione e riproduzione
+      description: What did you select? Which stage was reached? Describe existing observations; do not repeat a flash to reproduce an error.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and observed result / Risultato previsto ed effettivo
+    validations:
+      required: true
+  - type: textarea
+    id: state
+    attributes:
+      label: Current vehicle state / Stato attuale
+      description: Say whether a write started/completed, whether original screen/menus/functions work, and any fresh read or coding restore already performed. Use N/A for demo-only reports.
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Sanitized error excerpt / Estratto errore anonimizzato
+      description: Paste only the relevant short excerpt after manually removing VINs, key material, personal paths and other private data. Do not attach the full log or state folder.
+      render: text

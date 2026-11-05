@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "version": "0.2.0-beta.1",
+  "note": "Pinned originals retrieved 2026-11-05. SHA-256 detects changes; hashes are not an author signature. Mutable release assets must still match these pins. Offline catalog keeps only the seven payloads listed here and replaces URLs with local filenames.",
+  "artifacts": [
+    {
+      "target": "sources/mgu-store-648c7874b40c51375e6647f936f85ae501498bd1.zip",
+      "url": "https://codeload.github.com/robertnisipeanu/mgu-store/zip/648c7874b40c51375e6647f936f85ae501498bd1",
+      "sha256": "7dadb4525d378114f2f81b2d75fd442b44e7649cd98ca1c92640fe1b2876fe96",
+      "bytes": 7800983,
+      "kind": "store_source"
+    },
+    {
+      "target": "licenses/mgu-store-README.md",
+      "url": "https://raw.githubusercontent.com/robertnisipeanu/mgu-store/648c7874b40c51375e6647f936f85ae501498bd1/README.md",
+      "sha256": "e708894edc4b228a6bcb6de2f2745eb146938df861c13892919b4009e670fbe1",
+      "bytes": 9746,
+      "kind": "file"
+    },
+    {
+      "target": "licenses/mgu-store-LICENSE",
+      "url": "https://raw.githubusercontent.com/robertnisipeanu/mgu-store/648c7874b40c51375e6647f936f85ae501498bd1/LICENSE",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "bytes": 35149,
+      "kind": "file"
+    },
+    {
+      "target": "sources/idrive7-8-ssh-root-a4aa8932f1a61e784b761ea04ecc64f82c87a0d3.zip",
+      "url": "https://codeload.github.com/cauliflowermossgrape/idrive7-8-ssh-root/zip/a4aa8932f1a61e784b761ea04ecc64f82c87a0d3",
+      "sha256": "ea7c1074b20895f0649956d37c79c35d973c8e09952cb9db3f750476e04782ca",
+      "bytes": 545694,
+      "kind": "root_source"
+    },
+    {
+      "target": "licenses/idrive7-8-ssh-root-README.md",
+      "url": "https://raw.githubusercontent.com/cauliflowermossgrape/idrive7-8-ssh-root/a4aa8932f1a61e784b761ea04ecc64f82c87a0d3/README.md",
+      "sha256": "fb223418692924019091fe56312e24c3f1b6aa083e853b5f4de972202a18345a",
+      "bytes": 22107,
+      "kind": "file"
+    },
+    {
+      "target": "licenses/idrive7-8-ssh-root-LICENSE",
+      "url": "https://raw.githubusercontent.com/cauliflowermossgrape/idrive7-8-ssh-root/a4aa8932f1a61e784b761ea04ecc64f82c87a0d3/LICENSE",
+      "sha256": "6b0382b16279f26ff69014300541967a356a666eb0b91b422f6862f6b7dad17e",
+      "bytes": 1211,
+      "kind": "file"
+    },
+    {
+      "target": "installer/mgu-install-windows-x64.exe.gz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/installer/mgu-install-windows-x64.exe.gz",
+      "sha256": "3ff97c2db901efaea0843cd31ac5088964ddfb896cd2e67cd1cf1d13d4bbd50c",
+      "bytes": 34953677,
+      "kind": "file"
+    },
+    {
+      "target": "installer/SHA256SUMS",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/installer/SHA256SUMS",
+      "sha256": "c893d8044b32d23cf313f0a8697ba4b296668ccbac22f3826837a5dd55bcf2a6",
+      "bytes": 564,
+      "kind": "file"
+    },
+    {
+      "target": "sources/catalog-upstream.json",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/catalog/catalog.json",
+      "sha256": "fff01cbc43515f9644603127898b59c8101db84d621b6542d102442f93ce6fc5",
+      "bytes": 53671,
+      "kind": "catalog"
+    },
+    {
+      "target": "payload/app-privacy@1.7.1.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/app-privacy%401.7.1/app-privacy%401.7.1.tgz",
+      "sha256": "a5c32beadfa6f0f661f8bf799b3ccbbeb34ff9f434804b64356e0a90ae8d5d38",
+      "bytes": 18940,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/mgu-deploy@0.7.17.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/mgu-deploy%400.7.17/mgu-deploy%400.7.17.tgz",
+      "sha256": "e0a62eb856fc6113c2790abf5493f11b128a8c52b05384b953b5d1c95ff443c4",
+      "bytes": 125802,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/mgu-python@1.0.2.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/mgu-python%401.0.2/mgu-python%401.0.2.tgz",
+      "sha256": "76959884aa5c6681115b217f2e4aec0d48e3ee40c139d0fb2d48cc270d1fde5a",
+      "bytes": 14441404,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/mgu-render@0.6.11.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/mgu-render%400.6.11/mgu-render%400.6.11.tgz",
+      "sha256": "87bdcd25fea2a758182630c4c62ca0a91ca08af7765af800a64836cc83ad8df5",
+      "bytes": 91232,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/mgu-updater@0.8.25.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/mgu-updater%400.8.25/mgu-updater%400.8.25.tgz",
+      "sha256": "a4b89c5314e0d361243c4a2631e4bced98253b20fea32f6ca65fa96df0d4b065",
+      "bytes": 121021,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/mgu-uplink@0.7.3.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/mgu-uplink%400.7.3/mgu-uplink%400.7.3.tgz",
+      "sha256": "51b36b6fbffc4bbac42160190c96b22125bc316de6cdc810304033718717ddbe",
+      "bytes": 3574216,
+      "kind": "payload"
+    },
+    {
+      "target": "payload/robertn_store@0.9.21.tgz",
+      "url": "https://github.com/robertnisipeanu/mgu-store/releases/download/robertn_store%400.9.21/robertn_store%400.9.21.tgz",
+      "sha256": "33ae760bd0dad6924dadfacf6e5889e75c10d1479aa4e53137832ac4774989c9",
+      "bytes": 4298508,
+      "kind": "payload"
+    },
+    {
+      "target": "sources/mgu-store-installer-2eb7c4f1b886eeec998bf68e2be886db51ecdfd4.zip",
+      "url": "https://codeload.github.com/robertnisipeanu/mgu-store/zip/2eb7c4f1b886eeec998bf68e2be886db51ecdfd4",
+      "sha256": "06682bd4a2e6dd2d5e229bc730fb1f6f3feac3d12c5040b555e9ebdf280360af",
+      "bytes": 4677185,
+      "kind": "installer_source"
+    },
+    {
+      "target": "sources/mgu-store-catalog-2cf83fc22f25876b57a775eee8ce64ebe4d4fa60.zip",
+      "url": "https://codeload.github.com/robertnisipeanu/mgu-store/zip/2cf83fc22f25876b57a775eee8ce64ebe4d4fa60",
+      "sha256": "a3235e0f794432b5e2a18d7588bf0f9d8ccf40d8ade9ebbca463bfbaf17a2298",
+      "bytes": 7800211,
+      "kind": "catalog_source"
+    }
+  ]
+}
