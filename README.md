@@ -2,7 +2,7 @@
 
 A Windows 11 desktop guide for checking a BMW **MGU head unit running iDrive 7**, preparing SSH access and installing [MGU Store](https://github.com/robertnisipeanu/mgu-store) through ENET. The current interface is in Italian; [the complete Italian guide is here](README.it.md).
 
-**Public beta: `v0.2.0-beta.1`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified.
+**Public beta: `v0.2.0-beta.2`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified.
 
 This independent project is not BMW software and is not endorsed by BMW or the upstream projects. It does not promise a risk-free installation, warranty coverage or compatibility with every vehicle feature.
 
@@ -74,7 +74,9 @@ python -m venv .venv
 .\.venv\Scripts\python.exe scripts/package.py
 ```
 
-Use Python 3.12 on Windows with Tkinter available. Resource preparation requires Internet access. The Git repository contains the assistant's source, documentation and pinned resource metadata, **not** upstream executables, private keys, vehicle logs or backups. `scripts/prepare_resources.py` downloads the pinned upstream resources into ignored directories and refuses SHA-256 mismatches. `scripts/build.py` creates the application bundle; `scripts/package.py` creates the ZIP and checksum in `release/`.
+Use Python 3.12 on Windows with Tkinter available. Resource preparation requires Internet access. The Git repository contains the assistant's source, documentation and pinned resource metadata, **not** upstream executables, private keys, vehicle logs or backups. `scripts/prepare_resources.py` prepares the pinned resources in ignored directories and refuses SHA-256 mismatches. `scripts/build.py` creates the application bundle; `scripts/package.py` creates the ZIP and checksum in `release/`.
+
+An upstream installer asset changed after the original download; CI detected the SHA-256 mismatch. To keep source builds reproducible, the verified original resource bundle is mirrored in this repository's [resources-20261105 release](https://github.com/IvanBiondi/mgu-assistant/releases/tag/resources-20261105). When the local resource cache is missing, preparation uses that hash-verified archive. The original official source URLs and expected SHA-256 values remain recorded; this mirror does not replace attribution or upstream licenses. Verification remains mandatory: the expected hashes were not relaxed to accept the changed installer.
 
 CI and local automated tests exercise code and simulated vehicle responses. They do not test a real car, establish electrical safety or prove firmware compatibility. The release notes distinguish automated checks from the owner's installation report.
 

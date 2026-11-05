@@ -1,8 +1,9 @@
-# Validation of v0.2.0-beta.1
+# Validation of v0.2.0-beta.2
 
 Local checks completed on Windows x64 on 2026-11-05:
 
-- 44 automated regression tests passed. They cover demo isolation, VIN/interface changes, SSH host-key changes, payload tampering, flash journal persistence and concurrent attempts, bounded read-only Busy retries, explicit debug-off verification, key permissions, UTF-8 worker output and invalidation of UI state after failed writes.
+- 56 automated regression tests passed. They cover demo isolation, VIN/interface changes, SSH host-key changes, payload tampering, flash journal persistence and concurrent attempts, bounded read-only Busy retries, explicit debug-off verification, key permissions, UTF-8 worker output and invalidation of UI state after failed writes.
+- Resource-bundle regression tests reject corrupted archives, unexpected members, traversal, symlinks, aliases, duplicate entries and byte/hash mismatches. The mirror preserves the original artifact hashes.
 - The upstream persistence orchestration was exercised with all vehicle I/O simulated; flash and enrollment calls were forbidden in that test.
 - 18 original upstream downloads matched their pinned sizes and SHA-256 values. The assembled resources contain 58 manifest entries and seven offline Store components.
 - Both source and frozen executable self-tests passed. The frozen executable passed with its parent environment requesting cp1252, reproducing the conditions behind the earlier progress-log encoding failure.

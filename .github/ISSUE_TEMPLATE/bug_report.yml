@@ -24,7 +24,7 @@ body:
     attributes:
       label: Application version / Versione
       description: Include release ZIP or source build, and commit if known.
-      placeholder: v0.2.0-beta.1, release ZIP
+      placeholder: v0.2.0-beta.2, release ZIP
     validations:
       required: true
   - type: textarea

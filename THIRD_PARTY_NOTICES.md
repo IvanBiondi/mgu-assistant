@@ -13,6 +13,8 @@ The downloadable bundle retains original source archives under `resources/source
 
 The offline catalog is derived from the pinned original catalog: only the seven bundled components remain and artifact URLs become local filenames. Its source archive and original catalog are included. Local SHA-256 manifests detect corruption or changes against the bundled manifest; they are not independent publisher signatures.
 
+The [resource snapshot](https://github.com/IvanBiondi/mgu-assistant/releases/tag/resources-20261105) mirrors these same verified originals because upstream release assets can be replaced. Archive members are named by SHA-256 and mapped to original names and URLs in the attached lock file. Resource preparation verifies the archive and each member before using it; the mirror does not replace the original attribution or license.
+
 The root source is not edited. Integration hooks in `backend.py` bind the selected ENET interface, isolate persistence, enforce the local attempt journal, verify key-file permissions and debug-off state, and retry only the specific Busy response on a certificate-address read. Review those hooks together with the original source when auditing the behavior.
 
 Python, Tcl/Tk, cryptography, OpenSSL, PyInstaller and installer/payload dependencies retain their respective licenses and notices. See the notices included in the distributed runtime and original source archives. The MIT license above does not relicense them. The root project's original bootstrap key is public upstream material, shared between installations using that mode; it is not a personal credential generated for the owner of this repository.

@@ -63,6 +63,7 @@ The selected BimmerCode backup path is a reference, not evidence that the backup
 | `0.1.1` | Explicit UTF-8 subprocess output fixed that issue; the later busy read-back after a completed flash exposed an incomplete recovery path |
 | `0.1.2` | Added local bootstrap-key recovery and a separate persistence action for an already accessible HU, with root/coding checks and strict server identity handling |
 | `0.2.0-beta.1` | Public packaging, durable write journal and bounded retry for the specific read-only busy response; still no universal vehicle validation |
+| `0.2.0-beta.2` | Reproducible source-build resource preparation using a hash-verified mirror of the original bundle after CI detected a changed upstream installer asset; original URLs and expected hashes preserved |
 
 Do not infer “nothing was written” from an encoding error in an unrelated run: the exact recorded stage matters.
 

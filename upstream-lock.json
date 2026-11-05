@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "note": "Pinned originals retrieved 2026-11-05. SHA-256 detects changes; hashes are not an author signature. Mutable release assets must still match these pins. Offline catalog keeps only the seven payloads listed here and replaces URLs with local filenames.",
   "artifacts": [
     {
@@ -129,5 +129,10 @@
       "bytes": 7800211,
       "kind": "catalog_source"
     }
-  ]
+  ],
+  "resource_bundle": {
+    "url": "https://github.com/IvanBiondi/mgu-assistant/releases/download/resources-20261105/upstream-resources-20261105.zip",
+    "sha256": "d7f8a49e2249728847741add63af08ef350ba8fec48c416ade2dc6ccfd9599de",
+    "bytes": 77903054
+  }
 }

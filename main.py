@@ -21,7 +21,7 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from backend import Backend, run_root_worker
 
 APP_NAME = "MGU Assistant"
-VERSION = "0.2.0-beta.1"
+VERSION = "0.2.0-beta.2"
 BG = "#f2f5fa"
 NAVY = "#132139"
 BLUE = "#1d5ed8"

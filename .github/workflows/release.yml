@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   build:
-    if: github.event.release.prerelease
+    if: github.event.release.prerelease && startsWith(github.event.release.tag_name, 'v')
     runs-on: windows-latest
     timeout-minutes: 30
     steps:

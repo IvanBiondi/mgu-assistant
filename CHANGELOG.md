@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0-beta.2
+
+- Preserve the verified upstream originals in a content-addressed resource snapshot. The upstream installer asset changed after the initial download; the first clean GitHub build correctly refused it.
+- Prepare resources from the pinned snapshot when a local cache is absent, verifying both the archive and every original file. Official source URLs and original hashes remain recorded.
+- Add regression checks for corrupted and unsafe resource archives. Vehicle behavior and component versions are unchanged from beta.1.
+
 ## 0.2.0-beta.1
 
 First public Windows x64 beta for candidate BMW MGU iDrive 7 head units.

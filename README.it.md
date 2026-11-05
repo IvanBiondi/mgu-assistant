@@ -2,7 +2,7 @@
 
 Un programma per **Windows 11 x64**, con interfaccia in italiano, che accompagna nei controlli della head unit **MGU con iDrive 7**, nell'accesso SSH e nell'installazione di [MGU Store](https://github.com/robertnisipeanu/mgu-store) tramite ENET. [English documentation](README.md).
 
-**Versione pubblica beta: `v0.2.0-beta.1`. La compatibilità con tutte le BMW iDrive 7 non è dimostrata.** Conta la head unit effettivamente montata, con le sue versioni software, non soltanto il modello dell'auto. È disponibile un solo resoconto positivo del proprietario su BMW F44. Leggi [compatibilità](docs/compatibility.md) prima di procedere.
+**Versione pubblica beta: `v0.2.0-beta.2`. La compatibilità con tutte le BMW iDrive 7 non è dimostrata.** Conta la head unit effettivamente montata, con le sue versioni software, non soltanto il modello dell'auto. È disponibile un solo resoconto positivo del proprietario su BMW F44. Leggi [compatibilità](docs/compatibility.md) prima di procedere.
 
 Il progetto è indipendente: non è un prodotto BMW e non è approvato da BMW o dagli autori dei progetti utilizzati. Non garantisce un'installazione senza rischi, la copertura della garanzia o il funzionamento di ogni dotazione.
 
@@ -136,7 +136,9 @@ python -m venv .venv
 .\.venv\Scripts\python.exe scripts/package.py
 ```
 
-La preparazione richiede Internet. Il repository contiene sorgenti e metadati delle risorse fissate, non eseguibili upstream, chiavi private o dati di auto. `prepare_resources.py` scarica le risorse previste e ne controlla SHA-256; `build.py` prepara l'applicazione e `package.py` crea lo ZIP e il checksum nella cartella `release/`.
+La preparazione richiede Internet. Il repository contiene sorgenti e metadati delle risorse fissate, non eseguibili upstream, chiavi private o dati di auto. `prepare_resources.py` prepara le risorse previste nelle cartelle escluse da Git e ne controlla SHA-256; `build.py` prepara l'applicazione e `package.py` crea lo ZIP e il checksum nella cartella `release/`.
+
+Un file dell'installer upstream è cambiato dopo il download originale: i controlli CI hanno rilevato la differenza SHA-256. Per rendere riproducibile la compilazione, il pacchetto originale verificato delle risorse è conservato anche nella release [resources-20261105](https://github.com/IvanBiondi/mgu-assistant/releases/tag/resources-20261105) di questo repository. Quando manca la cache locale, la preparazione usa questo archivio verificandone il checksum. Gli URL delle fonti ufficiali e i valori SHA-256 originali restano registrati; la copia non sostituisce i crediti o le licenze upstream. I controlli restano obbligatori: i valori attesi non sono stati modificati per accettare l'installer cambiato.
 
 I test automatici e la CI usano controlli locali e risposte simulate: **non operano su una vettura** e non dimostrano la compatibilità con altri modelli. Consulta anche [compatibilità](docs/compatibility.md), [problemi noti](docs/troubleshooting.md), [contributi](CONTRIBUTING.md) e [segnalazioni di sicurezza](SECURITY.md).
 

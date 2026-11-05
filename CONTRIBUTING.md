@@ -29,7 +29,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe main.py --demo
 ```
 
-Resource preparation needs Internet access and validates pinned SHA-256 values. Never put downloaded upstream binaries, private keys, real vehicle identifiers, local state or backups into Git. A hash failure needs investigation; changing the expected value is not a troubleshooting shortcut.
+Resource preparation needs Internet access and validates pinned SHA-256 values. If the local cache is missing, it uses the verified original resource bundle mirrored in the [resources-20261105 release](https://github.com/IvanBiondi/mgu-assistant/releases/tag/resources-20261105). Original official URLs and hashes remain recorded. This preserves the originally verified resources after an upstream installer asset changed; it does not accept the changed bytes or relax checks. Never put downloaded upstream binaries, private keys, real vehicle identifiers, local state or backups into Git. A hash failure needs investigation; changing the expected value is not a troubleshooting shortcut.
 
 Use `scripts/build.py` to build the application and `scripts/package.py` to create the release ZIP and checksum. Build/test commands run on the PC; the normal test suite must not require or contact a car.
 

@@ -80,6 +80,19 @@ def load_lock(path):
     for kind in ("root_source", "catalog", "store_source", "installer_source", "catalog_source"):
         if sum(a["kind"] == kind for a in lock["artifacts"]) != 1:
             raise ValueError("Lock must contain exactly one " + kind)
+    if "resource_bundle" in lock:
+        bundle = lock["resource_bundle"]
+        if not isinstance(bundle, dict) or not re.fullmatch(r"[a-f0-9]{64}", str(bundle.get("sha256", ""))):
+            raise ValueError("Invalid resource bundle SHA-256.")
+        if type(bundle.get("bytes")) is not int or bundle["bytes"] <= 0:
+            raise ValueError("Invalid resource bundle byte size.")
+        validate_url(bundle.get("url", ""))
+    sizes = {}
+    for artifact in lock["artifacts"]:
+        digest = artifact["sha256"]
+        if digest in sizes and sizes[digest] != artifact["bytes"]:
+            raise ValueError("Conflicting byte sizes for one pinned SHA-256.")
+        sizes[digest] = artifact["bytes"]
     return lock
 
 
@@ -87,13 +100,20 @@ def matches(path, artifact):
     return path.is_file() and not path.is_symlink() and path.stat().st_size == artifact["bytes"] and sha256(path) == artifact["sha256"]
 
 
-def fetch(artifact, cache, offline):
+def cached_original(artifact, cache):
     # Cache can be content-addressed or a previously prepared resource directory.
     candidates = [cache / artifact["sha256"], below(cache, artifact["target"]), cache / PurePosixPath(artifact["target"]).name]
     for candidate in candidates:
         if matches(candidate, artifact):
-            print("Verified cache: " + artifact["target"], flush=True)
             return candidate
+    return None
+
+
+def fetch(artifact, cache, offline):
+    candidate = cached_original(artifact, cache)
+    if candidate is not None:
+        print("Verified cache: " + artifact["target"], flush=True)
+        return candidate
     if offline:
         raise ValueError("Pinned original is absent or changed in cache: " + artifact["target"])
     cache.mkdir(parents=True, exist_ok=True)
@@ -123,6 +143,47 @@ def fetch(artifact, cache, offline):
     finally:
         partial.unlink(missing_ok=True)
     return destination
+
+
+def install_resource_bundle(archive, lock, cache):
+    """Check the mirror ZIP and every original before committing any cache entry."""
+    if not matches(archive, lock["resource_bundle"]):
+        raise ValueError("Resource bundle differs from its pinned SHA-256 or byte size.")
+    expected = {a["sha256"]: a for a in lock["artifacts"]}
+    cache.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive) as bundle:
+        entries = bundle.infolist()
+        names = [info.filename for info in entries]
+        if any(info.orig_filename != info.filename for info in entries) or len(names) != len(set(names)) or set(names) != set(expected):
+            raise ValueError("Resource bundle must contain exactly the pinned SHA-256 filenames, without paths or duplicates.")
+        for info in entries:
+            mode = stat.S_IFMT(info.external_attr >> 16)
+            if info.is_dir() or mode not in (0, stat.S_IFREG) or info.flag_bits & 1:
+                raise ValueError("Resource bundle contains a directory, link, special or encrypted file.")
+            if info.file_size != expected[info.filename]["bytes"]:
+                raise ValueError("Resource bundle member differs from the pinned byte size: " + info.filename)
+        with tempfile.TemporaryDirectory(prefix="bundle-verify-", dir=cache) as temporary:
+            staging = Path(temporary)
+            for info in entries:
+                target = staging / info.filename
+                with bundle.open(info) as source, target.open("wb") as output:
+                    shutil.copyfileobj(source, output)
+                if not matches(target, expected[info.filename]):
+                    raise ValueError("Resource bundle member differs from the original pin: " + info.filename)
+            # A bad member leaves the existing cache unchanged. Pins are never rewritten.
+            for info in entries:
+                (staging / info.filename).replace(cache / info.filename)
+    print(f"Verified resource snapshot and {len(expected)} original artifact pins.", flush=True)
+
+
+def prepare_bundle_cache(lock, cache, offline=False):
+    if offline or "resource_bundle" not in lock:
+        return
+    if all(cached_original(artifact, cache) is not None for artifact in lock["artifacts"]):
+        return
+    spec = dict(lock["resource_bundle"], target="sources/upstream-resource-bundle.zip")
+    archive = fetch(spec, cache, offline=False)
+    install_resource_bundle(archive, lock, cache)
 
 
 def extract_root(archive, destination):
@@ -202,6 +263,7 @@ def main():
         raise SystemExit("Missing resources/guida.html from the public source checkout.")
     scratch = ROOT / ".cache"
     scratch.mkdir(exist_ok=True)
+    prepare_bundle_cache(lock, args.cache_dir.resolve(), args.offline)
     with tempfile.TemporaryDirectory(prefix="resources-", dir=scratch) as temporary:
         staging = Path(temporary)
         for artifact in lock["artifacts"]:

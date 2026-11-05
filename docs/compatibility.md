@@ -1,6 +1,6 @@
 # Compatibility and evidence
 
-MGU Assistant `v0.2.0-beta.1` targets Windows 11 x64 and **BMW HU_MGU with iDrive 7** over ENET. It is an experimental public beta, not a certification for all BMWs or all iDrive 7 releases.
+MGU Assistant `v0.2.0-beta.2` targets Windows 11 x64 and **BMW HU_MGU with iDrive 7** over ENET. It is an experimental public beta, not a certification for all BMWs or all iDrive 7 releases.
 
 ## Platform boundary
 
