@@ -40,28 +40,28 @@ def validate_ip(value: str) -> str:
     try:
         ip = ipaddress.ip_address(str(value).strip())
     except ValueError as exc:
-        raise BackendError('Inserire un indirizzo IPv4 ENET valido.') from exc
+        raise BackendError('Enter a valid ENET IPv4 address.') from exc
     if ip.version != 4 or not ip.is_link_local or int(ip) & 0xFFFF in (0, 0xFFFF):
-        raise BackendError('Sono ammessi soltanto indirizzi ENET 169.254.x.x.')
+        raise BackendError('Only ENET 169.254.x.x addresses are allowed.')
     return str(ip)
 
 
 def validate_vin(value: str) -> str:
     value = str(value).strip().upper()
     if not VIN_RE.fullmatch(value):
-        raise BackendError('Il VIN deve avere 17 caratteri validi.')
+        raise BackendError('The VIN must contain 17 valid characters.')
     return value
 
 
 def validate_key(value) -> Path:
     path = Path(value).expanduser().resolve()
     if not path.is_file() or path.suffix.lower() in ('.pub', '.ppk') or path.name.endswith('.pub.pem'):
-        raise BackendError('Selezionare la chiave PRIVATA OpenSSH id_rsa, non .pub o .ppk.')
+        raise BackendError('Select the OpenSSH PRIVATE key id_rsa, not .pub or .ppk.')
     if path.stat().st_size > 65536:
-        raise BackendError('Il file selezionato non sembra una chiave privata.')
+        raise BackendError('The selected file does not appear to be a private key.')
     first = path.read_bytes()[:100]
     if b'PRIVATE KEY-----' not in first:
-        raise BackendError('Il file non contiene una chiave privata riconoscibile.')
+        raise BackendError('The file does not contain a recognizable private key.')
     return path
 
 
@@ -88,7 +88,7 @@ def _binary(name: str) -> str:
     if not result:
         result = shutil.which(name) or shutil.which(name + '.exe')
     if not result:
-        raise BackendError(f'{name} non disponibile. Installare Client OpenSSH nelle funzionalità facoltative di Windows.')
+        raise BackendError(f'{name} unavailable. Install OpenSSH Client through Windows Optional Features.')
     return result
 
 
@@ -98,7 +98,7 @@ def _run(argv, *, timeout=30, input=None):
                               stderr=subprocess.PIPE, encoding='utf-8', errors='replace',
                               timeout=timeout, creationflags=CREATE_NO_WINDOW, shell=False)
     except subprocess.TimeoutExpired as exc:
-        raise BackendError('Operazione di lettura scaduta. Nessuna riparazione automatica avviata.') from exc
+        raise BackendError('Read operation timed out. No automatic repair was started.') from exc
 
 
 def _secure_key_file(path):
@@ -109,7 +109,7 @@ def _secure_key_file(path):
     """
     target = Path(path).resolve()
     if not target.is_file():
-        raise BackendError('La copia locale della chiave non esiste: autorizzazioni non applicate.')
+        raise BackendError('The local key copy does not exist; permissions were not applied.')
     if os.name != 'nt':
         target.chmod(0o600)
         return
@@ -135,9 +135,9 @@ if($r.IdentityReference.Value -ne $sid.Value -or $r.IsInherited -or $r.AccessCon
     try:
         result = _run([str(powershell), '-NoProfile', '-NonInteractive', '-EncodedCommand', command], timeout=20)
         if result.returncode:
-            raise BackendError('Verifica ACL non riuscita.')
+            raise BackendError('ACL verification failed.')
     except (OSError, BackendError) as exc:
-        raise BackendError('Autorizzazioni della copia locale della chiave non confermate. Nessuna connessione SSH deve usare questa copia finché il controllo non riesce.') from exc
+        raise BackendError('Permissions on the local key copy could not be confirmed. No SSH connection may use this copy until verification succeeds.') from exc
 
 
 def _key_lines(host: str, text: str) -> tuple[list[str], list[str]]:
@@ -148,21 +148,21 @@ def _key_lines(host: str, text: str) -> tuple[list[str], list[str]]:
             continue
         parts = line.split()
         if len(parts) != 3 or parts[0] != host or parts[1] not in ('ssh-rsa', 'ssh-ed25519', 'ecdsa-sha2-nistp256'):
-            raise BackendError('Risposta chiave server non valida o indirizzata a un altro host.')
+            raise BackendError('Invalid server key response or response for a different host.')
         try:
             blob = base64.b64decode(parts[2], validate=True)
             n = int.from_bytes(blob[:4], 'big')
             if not 1 <= n <= 64 or blob[4:4+n].decode('ascii') != parts[1] or len(blob) < n+12:
                 raise ValueError('SSH key type')
         except (ValueError, UnicodeError) as exc:
-            raise BackendError('Chiave pubblica server malformata.') from exc
+            raise BackendError('Malformed server public key.') from exc
         normalized = ' '.join(parts)
         if normalized not in valid:
             valid.append(normalized)
             fp = base64.b64encode(hashlib.sha256(blob).digest()).decode().rstrip('=')
             prints.append(f'{parts[1]} SHA256:{fp}')
     if not valid:
-        raise BackendError('Nessuna chiave server ricevuta dalla HU.')
+        raise BackendError('No server key received from the HU.')
     return valid, prints
 
 
@@ -238,9 +238,9 @@ class Backend:
 
     def _write_guard(self):
         if self.demo:
-            raise BackendError('Modalità dimostrativa: tutte le scritture sulla vettura sono disabilitate.')
+            raise BackendError('Demo mode: all vehicle writes are disabled.')
         if not is_admin():
-            raise BackendError('Chiudere e avviare MGU Assistant con Esegui come amministratore prima di modificare la HU.')
+            raise BackendError('Close MGU Assistant and start it with Run as administrator before modifying the HU.')
 
     def _flash_attempt_dir(self, vin):
         return self.state_dir/'flash-attempts'/validate_vin(vin)
@@ -261,9 +261,9 @@ class Backend:
             # Exclusive directory creation prevents two GUI/worker instances racing.
             directory.mkdir(exist_ok=False)
         except FileExistsError as exc:
-            raise BackendError('Esiste già un tentativo di sblocco per questa vettura. Nuovo flash bloccato anche se SSH è chiuso. Verificare l’esito precedente e usare il recupero della chiave o la persistenza quando appropriato.') from exc
+            raise BackendError('An unlock attempt already exists for this vehicle. A new flash is blocked even if SSH is closed. Review the previous result and use key recovery or persistence when appropriate.') from exc
         except OSError as exc:
-            raise BackendError('Impossibile registrare il tentativo: nessun flash avviato.') from exc
+            raise BackendError('Cannot record the attempt: no flash started.') from exc
         try:
             with (directory/'attempt.json').open('x', encoding='utf-8', newline='\n') as stream:
                 json.dump(record, stream, ensure_ascii=False, indent=2)
@@ -271,7 +271,7 @@ class Backend:
                 os.fsync(stream.fileno())
         except OSError as exc:
             # Even a partially written reservation remains blocking after restart.
-            raise BackendError('Registro del tentativo non salvato: nessun flash avviato. Il blocco locale resta attivo e richiede verifica.') from exc
+            raise BackendError('Attempt journal not saved: no flash started. The local block remains active and needs review.') from exc
         return record['attempt_id']
 
     def _read_flash_attempt(self, vin):
@@ -281,12 +281,12 @@ class Backend:
                 raise ValueError('invalid journal')
             return record
         except (OSError, ValueError) as exc:
-            raise BackendError('Registro del tentativo assente o non leggibile: nuovo flash bloccato.') from exc
+            raise BackendError('Attempt journal missing or unreadable: new flash blocked.') from exc
 
     def _update_flash_attempt(self, vin, attempt_id, state, **details):
         record = self._read_flash_attempt(vin)
         if record.get('attempt_id') != attempt_id:
-            raise BackendError('Il registro del tentativo è cambiato: operazione bloccata.')
+            raise BackendError('The attempt journal changed: operation blocked.')
         record.update(state=state, updated_utc=datetime.now(timezone.utc).isoformat(), **details)
         directory = self._flash_attempt_dir(vin)
         temporary = directory/('attempt-'+uuid.uuid4().hex+'.tmp')
@@ -306,7 +306,7 @@ class Backend:
             self._update_flash_attempt(vin, attempt_id, state, **details)
         except (OSError, BackendError):
             try:
-                self.log('Esito non aggiornabile nel registro locale; il blocco del nuovo flash resta attivo.')
+                self.log('Cannot update the result in the local journal; the block on another flash remains active.')
             except Exception:
                 pass
 
@@ -316,7 +316,7 @@ class Backend:
         record = self._read_flash_attempt(scan['vin'])
         if record.get('attempt_id') != attempt_id or record.get('state') != 'reserved' or any(
                 record.get(field) != scan.get(field) for field in ('vin', 'gateway', 'hu_ip', 'local_ip')):
-            raise BackendError('Tentativo di flash non autorizzato dal registro corrente o già avviato.')
+            raise BackendError('Flash attempt not authorized by the current journal or already started.')
         try:
             with (self._flash_attempt_dir(scan['vin'])/'worker-claimed').open('x', encoding='ascii') as stream:
                 stream.write(attempt_id+'\n')
@@ -324,38 +324,38 @@ class Backend:
                 os.fsync(stream.fileno())
             self._update_flash_attempt(scan['vin'], attempt_id, 'worker_started')
         except (OSError, BackendError) as exc:
-            raise BackendError('Tentativo già consumato o registro non aggiornabile: nuovo flash bloccato.') from exc
+            raise BackendError('Attempt already consumed or journal cannot be updated: new flash blocked.') from exc
         return attempt_id
 
     def verify_files(self) -> dict:
         manifest_path = self.resource_dir/'integrity.json'
         if not manifest_path.is_file():
-            raise BackendError('Manifest di integrità mancante: estrarre tutto il pacchetto.')
+            raise BackendError('Integrity manifest missing: extract the entire package.')
         manifest = json.loads(manifest_path.read_text(encoding='utf-8-sig'))
         files = manifest.get('files', manifest)
         if not isinstance(files, dict) or not files:
-            raise BackendError('Manifest di integrità non valido.')
+            raise BackendError('Invalid integrity manifest.')
         essential = ('vendor/root/ssh_enable.py', 'vendor/root/mgu7/diag.py',
                      'vendor/root/sshd-always-on.sh', 'installer/mgu-install-windows-x64.exe.gz',
                      'installer/SHA256SUMS', 'payload/catalog.json')
         if any(name not in files for name in essential):
-            raise BackendError('Il manifest non comprende i componenti essenziali.')
+            raise BackendError('The manifest does not include essential components.')
         for relative, expected in files.items():
             path = (self.resource_dir / relative).resolve()
             if not path.is_relative_to(self.resource_dir) or not re.fullmatch('[a-fA-F0-9]{64}', str(expected)):
-                raise BackendError('Percorso o digest non valido nel manifest.')
+                raise BackendError('Invalid path or digest in the manifest.')
             if not path.is_file() or path.is_symlink() or _sha(path) != str(expected).lower():
-                raise BackendError(f'File mancante o SHA256 diverso: {relative}. Nessun programma eseguito.')
+                raise BackendError(f'File missing or SHA-256 mismatch: {relative}. No program executed.')
         catalog = json.loads((self.resource_dir/'payload/catalog.json').read_text(encoding='utf-8-sig'))
         for component in catalog['components']:
             artifact = component['artifact']
             relative = artifact.get('url') or artifact['name']
             if '/' in relative or '\\' in relative or relative in ('.', '..'):
-                raise BackendError('Il catalogo offline contiene un percorso non locale.')
+                raise BackendError('The offline catalog contains a non-local path.')
             path = self.resource_dir/'payload'/relative
             if 'payload/'+relative not in files or path.stat().st_size != artifact['size'] or _sha(path) != artifact['sha256']:
-                raise BackendError('Artefatto del catalogo non verificato: '+relative)
-        self.log(f'Integrità locale verificata: {len(files)} file. Gli hash non certificano compatibilità o sicurezza del firmware.')
+                raise BackendError('Catalog artifact not verified: '+relative)
+        self.log(f'Local integrity verified: {len(files)} files. Hashes do not certify firmware compatibility or safety.')
         return {'ok': True, 'count': len(files), 'components': len(catalog['components'])}
 
     def _load_upstream(self):
@@ -372,18 +372,18 @@ class Backend:
         store = assets.Assets(str(self.resource_dir/'vendor/root/data/assets'))
         cert = store.cert()
         if not store.raw(7) or not cert:
-            raise BackendError('Asset upstream incompleti.')
+            raise BackendError('Incomplete upstream assets.')
         from cryptography.hazmat.primitives import serialization
         serialization.load_pem_private_key(store.raw(5), password=None)
         svk = diag.parse_svk(bytes.fromhex('62 F1 01 06 00 00 3F 36 01 02 03'))
         if not svk.is_supported_mgu():
-            raise BackendError('Autoverifica parser fallita.')
+            raise BackendError('Parser self-check failed.')
         result.update({'upstream': ROOT_COMMIT, 'crypto': True, 'no_vehicle_access': True})
         return result
 
     def check_pc(self) -> dict:
         if self.demo:
-            return {'ssh': 'DEMO OpenSSH', 'admin': False, 'adapters': [{'name': 'Ethernet dimostrativa', 'index': 12, 'ip': '169.254.10.30'}]}
+            return {'ssh': 'DEMO OpenSSH', 'admin': False, 'adapters': [{'name': 'Demo Ethernet', 'index': 12, 'ip': '169.254.10.30'}]}
         try:
             ssh = _binary('ssh')
             version = _run([ssh, '-V'], timeout=5)
@@ -394,10 +394,10 @@ class Backend:
         ps = str(Path(os.environ.get('SystemRoot', r'C:\Windows'))/'System32/WindowsPowerShell/v1.0/powershell.exe')
         result = _run([ps, '-NoProfile', '-NonInteractive', '-Command', command], timeout=25)
         if result.returncode:
-            raise BackendError('Windows non consente la lettura delle schede. Avviare come amministratore. '+result.stderr.strip())
+            raise BackendError('Windows could not read the network adapters. Run as administrator. '+result.stderr.strip())
         parsed = json.loads(result.stdout.lstrip('\ufeff').strip() or '[]')
         adapters = parsed if isinstance(parsed, list) else [parsed]
-        self.log(f'OpenSSH: {ssh_text or "non trovato"}; schede ENET attive: {len(adapters)}.')
+        self.log(f'OpenSSH: {ssh_text or "not found"}; active ENET adapters: {len(adapters)}.')
         return {'ssh': ssh_text, 'admin': is_admin(), 'adapters': adapters}
 
     def scan(self, local_ip) -> dict:
@@ -408,7 +408,7 @@ class Backend:
                       'svk': [{'type': 'BTLD', 'id': '00003F36', 'version': '001.002.003'}, {'type': 'CAFD', 'id': '00003E52', 'version': '001.002.003'}],
                       'supported': True, 'cafd_ok': True, 'ssh_open': False, 'local_ip': local_ip, 'demo': True}
             self.last_scan = result
-            self.log('DEMO: dati di esempio; nessun pacchetto inviato alla rete.')
+            self.log('DEMO: sample data; no packets sent to the network.')
             return result
         self.verify_files()
         discovery, hsfz, diag = self._load_upstream()
@@ -428,7 +428,7 @@ class Backend:
                 if vin and VIN_RE.fullmatch(vin) and address[0].startswith('169.254.'):
                     found[address[0]] = vin
         if len(found) != 1:
-            raise BackendError('Nessun gateway ENET rilevato.' if not found else 'Più gateway rilevati: interrompere e collegare soltanto la propria auto.')
+            raise BackendError('No ENET gateway detected.' if not found else 'Multiple gateways detected: stop and connect only the intended vehicle.')
         gateway, vin = next(iter(found.items()))
         class BoundReadClient(hsfz.EnetClient):
             def connect(self):
@@ -440,7 +440,7 @@ class Backend:
                 self.buf = b''
             def request(self, destination, request, profile):
                 if destination != hsfz.MGU or request not in (b'\x22\xf1\x01', b'\x22\x17\x2a'):
-                    raise BackendError('Richiesta fuori dalla lista di sola lettura: bloccata.')
+                    raise BackendError('Request outside the read-only allowlist: blocked.')
                 return super().request(destination, request, profile)
         client = BoundReadClient(gateway)
         client.connect()
@@ -455,8 +455,8 @@ class Backend:
                   'cafd_ok': any(r['type'] == 'CAFD' and r['id'] != 'FFFFFFFF' for r in records),
                   'ssh_open': self._port(hu_ip, local_ip), 'local_ip': local_ip}
         self.last_scan = result
-        self.log(f'VIN {vin}; HU {hu_ip}; gateway {gateway}; SSH aperto: {result["ssh_open"]}.')
-        self.log('Filtro MGU superato: '+str(result['supported'])+'. Non è una certificazione del firmware.')
+        self.log(f'VIN {vin}; HU {hu_ip}; gateway {gateway}; SSH open: {result["ssh_open"]}.')
+        self.log('MGU filter passed: '+str(result['supported'])+'. This is not firmware certification.')
         for r in records:
             self.log(f'{r["type"]} {r["id"]} {r["version"]}')
         return result
@@ -472,7 +472,7 @@ class Backend:
     def host_fingerprint(self, hu_ip, local_ip):
         hu_ip, local_ip = validate_ip(hu_ip), validate_ip(local_ip)
         if self.demo:
-            return {'fingerprints': ['DEMO: nessuna chiave reale acquisita'], 'key_lines': '', 'changed': False, 'already_trusted': False}
+            return {'fingerprints': ['DEMO: no real key acquired'], 'key_lines': '', 'changed': False, 'already_trusted': False}
         with _BoundKeyScan(hu_ip, local_ip) as relay:
             proc = _run([_binary('ssh-keyscan'), '-T', '4', '-p', str(relay.port), '-t', 'rsa,ecdsa,ed25519', '127.0.0.1'], timeout=18)
         lines = []
@@ -495,23 +495,23 @@ class Backend:
     def accept_host(self, hu_ip, key_lines):
         hu_ip = validate_ip(hu_ip)
         if self.demo:
-            self.log('DEMO: nessuna chiave salvata.')
+            self.log('DEMO: no key saved.')
             return
         lines, prints = _key_lines(hu_ip, key_lines)
         existing = self._existing(hu_ip)
         if existing and set(existing) != set(lines):
-            raise BackendError('La chiave server è cambiata. Non viene sovrascritta: verificare la causa prima di continuare.')
+            raise BackendError('The server key changed. It will not be overwritten; investigate the cause before continuing.')
         if not existing:
             self.state_dir.mkdir(parents=True, exist_ok=True)
             with self.known_hosts.open('a', encoding='utf-8', newline='\n') as stream:
                 stream.write('\n'.join(lines)+'\n')
-        self.log('Chiave server memorizzata dopo conferma. Questo è trust al primo collegamento, non una certificazione BMW.')
+        self.log('Server key saved after confirmation. This is trust on first use, not BMW certification.')
 
     def _ssh_args(self, hu_ip, local_ip, key):
         hu_ip, local_ip = validate_ip(hu_ip), validate_ip(local_ip)
         key = validate_key(key)
         if not self._existing(hu_ip):
-            raise BackendError('Acquisire e confermare prima la fingerprint della HU.')
+            raise BackendError('Read and confirm the HU fingerprint first.')
         kh = str(self.known_hosts).replace('\\', '/')
         return [_binary('ssh'), '-F', 'NUL' if os.name == 'nt' else '/dev/null', '-b', local_ip, '-p', '22', '-i', str(key),
                 '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes', '-o', 'PasswordAuthentication=no',
@@ -523,16 +523,16 @@ class Backend:
 
     def verify_ssh(self, hu_ip, local_ip, key):
         if self.demo:
-            self.log('DEMO: il login root reale non è stato verificato.')
+            self.log('DEMO: real root login was not verified.')
             return False
         args = self._ssh_args(hu_ip, local_ip, key)
         proc = _run(args+['id -u'], timeout=15)
         ok = proc.returncode == 0 and proc.stdout.strip() == '0'
         if not ok:
             self._verified_login = None
-            raise BackendError('Login root non verificato. '+proc.stderr.strip())
+            raise BackendError('Root login not verified. '+proc.stderr.strip())
         self._verified_login = (validate_ip(hu_ip), validate_ip(local_ip), str(validate_key(key)), time.monotonic())
-        self.log('Login root confermato: id -u = 0. Nessuna modifica applicativa.')
+        self.log('Root login confirmed: id -u = 0. No application changes.')
         return True
 
     def _stream(self, argv, *, env_overrides=None):
@@ -559,15 +559,15 @@ class Backend:
         self.verify_files()
         expected = dict(self.last_scan or {})
         if not expected or expected.get('hu_ip') != validate_ip(hu_ip) or expected.get('local_ip') != validate_ip(local_ip):
-            raise BackendError('Ripetere la lettura HU prima di installare lo Store.')
+            raise BackendError('Read the HU again before installing the Store.')
         fresh = self.scan(local_ip)
         if not fresh.get('supported') or not fresh.get('cafd_ok') or any(
                 fresh.get(field) != expected.get(field) for field in ('vin', 'gateway', 'hu_ip', 'local_ip')):
-            raise BackendError('La vettura o il coding sono cambiati: installazione bloccata. Ripetere i controlli.')
+            raise BackendError('The vehicle or coding changed: installation blocked. Repeat the checks.')
         self.verify_ssh(hu_ip, local_ip, key)
         machine = os.environ.get('PROCESSOR_ARCHITEW6432') or os.environ.get('PROCESSOR_ARCHITECTURE', '')
         if machine.upper() != 'AMD64':
-            raise BackendError('Questa build è per Windows x64; installazione non avviata su questa architettura.')
+            raise BackendError('This build is for Windows x64; installation was not started on this architecture.')
         packed = self.resource_dir/'installer/mgu-install-windows-x64.exe.gz'
         sums = (self.resource_dir/'installer/SHA256SUMS').read_text(encoding='utf-8')
         expected = None
@@ -576,7 +576,7 @@ class Backend:
             if len(p) == 2 and p[1].lstrip('*') == packed.name:
                 expected = p[0].lower()
         if expected != _sha(packed):
-            raise BackendError('SHA256SUMS upstream non corrisponde all’installer.')
+            raise BackendError('Upstream SHA256SUMS does not match the installer.')
         self.state_dir.mkdir(parents=True, exist_ok=True)
         target = self.state_dir/'mgu-install.exe'
         with gzip.open(packed, 'rb') as src, target.open('wb') as dest:
@@ -592,8 +592,8 @@ class Backend:
             args.append('--no-uplink')
         code, output = self._stream(args)
         if code:
-            raise BackendError(f'Installer terminato con errore {code}. Conservare il log; nessun reflash automatico.')
-        self.log('Installer terminato senza errori. Verificare lo Store; il riavvio finale è un pulsante separato.')
+            raise BackendError(f'Installer exited with error {code}. Keep the log; no automatic reflash.')
+        self.log('Installer completed without errors. Check the Store; the final restart has a separate button.')
 
     def reboot(self, hu_ip, local_ip, key):
         self._write_guard()
@@ -602,13 +602,13 @@ class Backend:
                    "kill -0 $(cut -d ' ' -f 1 $L) 2>/dev/null; then exit 3; fi; /usr/bin/nsm_control --requestRestart 7 --normal 2>&1")
         proc = _run(self._ssh_args(hu_ip, local_ip, key)+[command], timeout=20)
         if proc.returncode or '[Error.' in proc.stdout:
-            raise BackendError('Riavvio non confermato. '+(proc.stdout+proc.stderr).strip())
+            raise BackendError('Restart not confirmed. '+(proc.stdout+proc.stderr).strip())
         self._verified_login = None
-        self.log('Richiesta di riavvio HU accettata. Attendere il ritorno di iDrive e ripetere i controlli.')
+        self.log('HU restart request accepted. Wait for iDrive to return and repeat the checks.')
 
     def recover_key(self, vin):
         if self.demo:
-            raise BackendError('Recupero della chiave disabilitato in demo.')
+            raise BackendError('Key recovery is disabled in demo mode.')
         vin = validate_vin(vin)
         self.verify_files()
         from cryptography.hazmat.primitives import serialization
@@ -622,12 +622,12 @@ class Backend:
         if target.exists():
             existing = serialization.load_ssh_private_key(target.read_bytes(), password=None)
             if existing.public_key().public_numbers() != private.public_key().public_numbers():
-                raise BackendError('Nel percorso esiste una chiave diversa: non viene sovrascritta.')
+                raise BackendError('A different key exists at this path; it will not be overwritten.')
         else:
             with target.open('xb') as stream:
                 stream.write(data)
         _secure_key_file(target)
-        self.log('Chiave bootstrap originale recuperata solo sul PC. È condivisa dal progetto; il login va ancora verificato.')
+        self.log('Original bootstrap key recovered on the PC only. It is shared by the project; login still needs verification.')
         return {'key': str(target)}
 
     def persist(self, vin, gateway, hu_ip, local_ip, key):
@@ -641,16 +641,16 @@ class Backend:
                    '--vin', vin, '--gateway', gateway, '--hu-ip', hu_ip, '--local-ip', local_ip, '--key', str(validate_key(key))]
         code, output = self._stream(launch)
         if code or 'DONE: SSH runs with debug mode OFF' not in output or 'Close routine result: confirmed' not in output:
-            raise BackendError('Persistenza non confermata. Conservare il log: non viene eseguito alcun reflash o enrollment automatico.')
+            raise BackendError('Persistence not confirmed. Keep the log; no automatic reflash or enrollment is performed.')
         self.verify_ssh(hu_ip, local_ip, key)
-        self.log('Persistenza completata e login root ricontrollato. Nessun nuovo flash eseguito.')
+        self.log('Persistence completed and root login checked again. No new flash performed.')
         return True
 
     def flash(self, vin, gateway, hu_ip, local_ip):
         self._write_guard()
         vin, gateway, hu_ip, local_ip = validate_vin(vin), validate_ip(gateway), validate_ip(hu_ip), validate_ip(local_ip)
         if self.has_flash_attempt(vin):
-            raise BackendError('Tentativo precedente rilevato per questa vettura: nuovo flash bloccato. Verificare l’esito e seguire il recupero; riavviare l’app non rimuove il blocco.')
+            raise BackendError('Previous attempt detected for this vehicle: new flash blocked. Review the result and follow recovery guidance; restarting the app does not remove the block.')
         self.verify_files()
         fresh = self.scan(local_ip)
         _check_flash_target(fresh, vin, gateway, hu_ip)
@@ -664,32 +664,32 @@ class Backend:
         try:
             code, output = self._stream(launch, env_overrides={FLASH_ATTEMPT_ENV: attempt_id})
             if code or 'SSH OK as root:' not in output or 'DONE: SSH runs with debug mode OFF' not in output:
-                raise BackendError(f'Sblocco non confermato (codice {code}). Conservare il log e verificare in quale fase si è fermato. Il tentativo resta registrato e un nuovo flash è bloccato. Questo errore da solo non prova che il coding sia stato modificato: non ripristinarlo alla cieca.')
+                raise BackendError(f'Unlock not confirmed (code {code}). Keep the log and check which stage was reached. The attempt remains recorded and a new flash is blocked. This error alone does not prove that coding changed; do not restore it blindly.')
             key = self.state_dir/'data/enrollments'/vin/'id_rsa'
             validate_key(key)
         except BaseException:
             self._note_flash_result(vin, attempt_id, 'needs_review')
             raise
         self._note_flash_result(vin, attempt_id, 'confirmed')
-        self.log('Sblocco confermato dai log. Ora ripristinare/verificare il coding in BimmerCode prima dello Store.')
+        self.log('Unlock confirmed by the logs. Now restore/check coding in BimmerCode before installing the Store.')
         return {'key': str(key), 'vin': vin, 'log_dir': str(self.state_dir/'logs')}
 
 
 def _check_flash_target(scan, vin, gateway, hu_ip):
     if not scan.get('supported') or not scan.get('cafd_ok'):
-        raise BackendError('HU non supportata o CAFD non valido: flash bloccato.')
+        raise BackendError('Unsupported HU or invalid CAFD: flash blocked.')
     if any(scan.get(k) != v for k, v in (('vin', vin), ('gateway', gateway), ('hu_ip', hu_ip))):
-        raise BackendError('I dati della vettura sono cambiati dall’ultima lettura: flash bloccato.')
+        raise BackendError('Vehicle data changed since the last reading: flash blocked.')
     # An already open SSH service must be investigated, never reflexively reflashed.
     if scan.get('ssh_open'):
-        raise BackendError('SSH è già aperto. Verificare la chiave e il login; non viene avviato un nuovo flash.')
+        raise BackendError('SSH is already open. Check the key and login; no new flash will be started.')
 
 
 def _check_persist_target(scan, vin, gateway, hu_ip):
     if not scan.get('supported') or not scan.get('cafd_ok') or not scan.get('ssh_open'):
-        raise BackendError('Persistenza bloccata: servono HU riconosciuta, coding valido e SSH già aperto.')
+        raise BackendError('Persistence blocked: requires a recognized HU, valid coding and SSH already open.')
     if any(scan.get(k) != v for k, v in (('vin', vin), ('gateway', gateway), ('hu_ip', hu_ip))):
-        raise BackendError('Identità della vettura cambiata: persistenza bloccata.')
+        raise BackendError('Vehicle identity changed: persistence blocked.')
 
 
 def _readback_with_busy_retry(readback, reject_type, log):
@@ -706,7 +706,7 @@ def _readback_with_busy_retry(readback, reject_type, log):
                 reject = exc if isinstance(exc, reject_type) else (exc.__cause__ or exc.__context__)
                 if not isinstance(reject, reject_type) or reject.sid != 0x22 or reject.nrc != 0x21 or attempt == 5:
                     raise
-                log(f'HU occupata al readback 22 17 2A: ripetizione della sola lettura {attempt+1}/5 tra 1 secondo.')
+                log(f'HU busy at readback 22 17 2A: repeating only the read {attempt+1}/5 in 1 second.')
                 time.sleep(1)
     return retry
 
@@ -722,7 +722,7 @@ def _strict_persist_verification(run_persist, diag):
         def checked_state(*args, **kwargs):
             state = read_state(*args, **kwargs)
             if not isinstance(state, dict) or state.get('dtc_debug') is not False:
-                raise BackendError('SSH potrebbe essere già persistente, ma debug OFF non è confermato da una lettura diagnostica valida. Esito da verificare: nessun nuovo flash o ripristino automatico.')
+                raise BackendError('SSH may already be persistent, but debug OFF is not confirmed by a valid diagnostic reading. Result needs review: no new flash or automatic restore.')
             return state
         diag.debug_state = checked_state
         try:
@@ -740,7 +740,7 @@ def run_root_worker(args, state_dir, resource_dir):
     hu_ip, local_ip = validate_ip(val('hu_ip')), validate_ip(val('local_ip'))
     action = val('worker')
     if action not in ('flash', 'persist'):
-        raise BackendError('Azione worker non consentita.')
+        raise BackendError('Worker action not allowed.')
     backend = Backend(resource_dir, state_dir, lambda text: print(text, flush=True))
     backend._write_guard()
     backend.verify_files()
@@ -791,7 +791,7 @@ def run_root_worker(args, state_dir, resource_dir):
         def persist_request(self, dst, request, profile):
             allowed = (b'\x22\xf1\x01', b'\x22\x17\x2a', b'\x19\x02\x0c', b'\x31\x02\xa0\xfd')
             if dst != hsfz.MGU or request not in allowed:
-                raise BackendError('Comando diagnostico fuori dalla procedura di persistenza: bloccato.')
+                raise BackendError('Diagnostic command outside the persistence procedure: blocked.')
             return original_request(self, dst, request, profile)
         hsfz.EnetClient.request = persist_request
         ssh_enable.Tool._load_identity = lambda self: str(selected_key)
@@ -806,7 +806,7 @@ def run_root_worker(args, state_dir, resource_dir):
     def bound_ssh(*a, **kw):
         if action == 'persist':
             if a[0] != hu_ip or (len(a) > 2 and a[2] != 'root') or (len(a) > 3 and int(a[3]) != 22):
-                raise BackendError('Destinazione SSH non consentita.')
+                raise BackendError('SSH destination not allowed.')
             return backend._ssh_args(hu_ip, local_ip, a[1])
         argv = original_base(*a, **kw)
         return argv[:1]+['-b', local_ip]+argv[1:]

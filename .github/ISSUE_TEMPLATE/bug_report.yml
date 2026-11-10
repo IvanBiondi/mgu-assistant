@@ -1,4 +1,4 @@
-name: Bug report / Segnalazione problema
+name: Bug report
 description: Report a reproducible problem without private vehicle data or keys.
 title: "[Bug]: "
 body:
@@ -11,7 +11,7 @@ body:
   - type: checkboxes
     id: checks
     attributes:
-      label: Before reporting / Prima di inviare
+      label: Before reporting
       options:
         - label: I read the compatibility and troubleshooting documentation.
           required: true
@@ -22,46 +22,46 @@ body:
   - type: input
     id: version
     attributes:
-      label: Application version / Versione
+      label: Application version
       description: Include release ZIP or source build, and commit if known.
-      placeholder: v0.2.0-beta.2, release ZIP
+      placeholder: v0.2.0-beta.3, release ZIP
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: PC and connection / PC e collegamento
+      label: PC and connection
       description: Windows version, Ethernet adapter, ENET arrangement, real or demo mode. No personal paths or network secrets.
     validations:
       required: true
   - type: textarea
     id: hu
     attributes:
-      label: HU information / Informazioni HU
+      label: HU information
       description: Optional model/year and BTLD/HWEL/CAFD identifiers and versions from a reading already performed. No VIN; do not perform a write to collect this information.
   - type: textarea
     id: steps
     attributes:
-      label: Action and reproduction / Azione e riproduzione
+      label: Action and reproduction
       description: What did you select? Which stage was reached? Describe existing observations; do not repeat a flash to reproduce an error.
     validations:
       required: true
   - type: textarea
     id: behavior
     attributes:
-      label: Expected and observed result / Risultato previsto ed effettivo
+      label: Expected and observed result
     validations:
       required: true
   - type: textarea
     id: state
     attributes:
-      label: Current vehicle state / Stato attuale
+      label: Current vehicle state
       description: Say whether a write started/completed, whether original screen/menus/functions work, and any fresh read or coding restore already performed. Use N/A for demo-only reports.
     validations:
       required: true
   - type: textarea
     id: error
     attributes:
-      label: Sanitized error excerpt / Estratto errore anonimizzato
+      label: Sanitized error excerpt
       description: Paste only the relevant short excerpt after manually removing VINs, key material, personal paths and other private data. Do not attach the full log or state folder.
       render: text

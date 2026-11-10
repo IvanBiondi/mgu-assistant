@@ -21,7 +21,7 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from backend import Backend, run_root_worker
 
 APP_NAME = "MGU Assistant"
-VERSION = "0.2.0-beta.2"
+VERSION = "0.2.0-beta.3"
 BG = "#f2f5fa"
 NAVY = "#132139"
 BLUE = "#1d5ed8"
@@ -74,11 +74,11 @@ def _restore_worker_streams() -> None:
 
 class MGUApp:
     STAGES = [
-        ("1", "Connessione", "Controlla PC, ENET e centralina"),
-        ("2", "Backup e sblocco", "Prepara i prerequisiti dello sblocco"),
-        ("3", "Chiave e coding", "Verifica accesso root e ripristino"),
-        ("4", "Installa Store", "Installa i componenti offline"),
-        ("5", "Riavvio e verifica", "Completa e controlla le funzioni"),
+        ("1", "Connection", "Check the PC, ENET and head unit"),
+        ("2", "Backup and unlock", "Prepare before unlocking"),
+        ("3", "Key and coding", "Verify root access and coding recovery"),
+        ("4", "Install Store", "Install the offline components"),
+        ("5", "Restart and verify", "Finish and check vehicle functions"),
     ]
 
     def __init__(self, root: tk.Tk, resource_dir: Path, state_dir: Path, demo: bool = False):
@@ -121,12 +121,12 @@ class MGUApp:
         self.coding_ok = tk.BooleanVar()
         self.uplink = tk.BooleanVar(value=True)
         self.final_checks = [tk.BooleanVar() for _ in range(4)]
-        self.pc_text = tk.StringVar(value="Non controllato. Nessuna connessione viene avviata automaticamente.")
-        self.hu_text = tk.StringVar(value="Collega ENET e scegli la scheda Ethernet, poi premi Leggi la HU.")
-        self.root_text = tk.StringVar(value="Accesso root non verificato")
-        self.store_text = tk.StringVar(value="File non ancora verificati · installazione non eseguita")
-        self.backup_text = tk.StringVar(value="Nessun backup selezionato")
-        self.status = tk.StringVar(value="Pronto · nessuna operazione sulla vettura")
+        self.pc_text = tk.StringVar(value="Not checked. No connection starts automatically.")
+        self.hu_text = tk.StringVar(value="Connect ENET, select the Ethernet adapter, then click Read HU.")
+        self.root_text = tk.StringVar(value="Root access not verified")
+        self.store_text = tk.StringVar(value="Files not verified · not installed")
+        self.backup_text = tk.StringVar(value="No backup selected")
+        self.status = tk.StringVar(value="Ready · no vehicle operation in progress")
         self.stage_title = tk.StringVar()
         self.stage_subtitle = tk.StringVar()
         self._build()
@@ -138,8 +138,8 @@ class MGUApp:
         self.root.protocol("WM_DELETE_WINDOW", self.close)
         self.root.after(70, self._poll)
         self.show_stage(0)
-        self._log("MGU Assistant " + VERSION + (" — MODALITÀ DEMO: nessuna operazione sulla vettura." if demo else " — nessuna operazione avviata."))
-        self._log("Log locali: possono contenere VIN, IP e percorsi. Esaminali prima di condividerli. Non includono intenzionalmente il contenuto delle chiavi.")
+        self._log("MGU Assistant " + VERSION + (" — DEMO MODE: no vehicle operations." if demo else " — no operation started."))
+        self._log("Local logs may contain VINs, IP addresses and paths. Review them before sharing. Key contents are not intentionally logged.")
         self._refresh()
 
     def _build(self):
@@ -185,8 +185,8 @@ class MGUApp:
         lower = tk.Frame(sidebar, bg=NAVY)
         lower.pack(side="bottom", fill="x", padx=24, pady=23)
         if self.demo:
-            tk.Label(lower, text="DEMO · SCRITTURE BLOCCATE", bg="#72531f", fg="#fff0bd", font=("Segoe UI", 9, "bold"), padx=7, pady=8).pack(fill="x", pady=(0, 12))
-        tk.Label(lower, text="Strumento indipendente\nNon certificato BMW\nVersione " + VERSION,
+            tk.Label(lower, text="DEMO · WRITES BLOCKED", bg="#72531f", fg="#fff0bd", font=("Segoe UI", 9, "bold"), padx=7, pady=8).pack(fill="x", pady=(0, 12))
+        tk.Label(lower, text="Independent tool\nNot BMW-certified\nVersion " + VERSION,
                  bg=NAVY, fg="#aabbd2", justify="left", font=("Segoe UI", 9)).pack(anchor="w")
 
         right = ttk.Frame(self.root, padding=(24, 18, 24, 12))
@@ -197,8 +197,8 @@ class MGUApp:
         title_area.pack(side="left", fill="x", expand=True)
         ttk.Label(title_area, textvariable=self.stage_title, font=("Segoe UI Semibold", 22)).pack(anchor="w")
         ttk.Label(title_area, textvariable=self.stage_subtitle, foreground=MUTED).pack(anchor="w", pady=(4, 0))
-        ttk.Button(top, text="Apri guida", command=self.open_guide).pack(side="right", padx=(8, 0))
-        ttk.Button(top, text="Apri log", command=self.open_log).pack(side="right")
+        ttk.Button(top, text="Open guide", command=self.open_guide).pack(side="right", padx=(8, 0))
+        ttk.Button(top, text="Open log", command=self.open_log).pack(side="right")
 
         panels = ttk.Panedwindow(right, orient="vertical")
         panels.pack(fill="both", expand=True)
@@ -223,9 +223,9 @@ class MGUApp:
         panels.add(logs, weight=1)
         log_head = ttk.Frame(logs)
         log_head.pack(fill="x", pady=(0, 6))
-        ttk.Label(log_head, text="Registro attività", font=("Segoe UI Semibold", 11)).pack(side="left")
-        ttk.Button(log_head, text="Copia", command=self.copy_log).pack(side="right", padx=(7, 0))
-        ttk.Button(log_head, text="Esporta…", command=self.export_log).pack(side="right")
+        ttk.Label(log_head, text="Activity log", font=("Segoe UI Semibold", 11)).pack(side="left")
+        ttk.Button(log_head, text="Copy", command=self.copy_log).pack(side="right", padx=(7, 0))
+        ttk.Button(log_head, text="Export…", command=self.export_log).pack(side="right")
         self.log_widget = tk.Text(logs, height=9, bg="#101d30", fg="#d9e5f5", insertbackground="white",
                                   font=("Consolas", 9), wrap="word", relief="flat", padx=12, pady=9, state="disabled")
         self.log_widget.pack(fill="both", expand=True)
@@ -262,98 +262,98 @@ class MGUApp:
         return control
 
     def _connection_page(self, page):
-        card = self.card(page, "Collega il PC alla vettura")
-        self.text(card, "Auto ferma, quadro acceso. Collega il cavo ENET alla porta OBD e all'Ethernet del PC. Il controllo iniziale legge soltanto i dati: non abilita SSH e non esegue flash.")
+        card = self.card(page, "Connect the PC to the vehicle")
+        self.text(card, "Park the vehicle with the ignition on. Connect the ENET cable to the OBD port and the PC Ethernet adapter. The initial check only reads data; it does not enable SSH or flash the HU.")
         ttk.Label(card, textvariable=self.pc_text, style="Muted.TLabel", wraplength=800).pack(anchor="w", pady=(0, 9))
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "pc", "Controlla PC e schede", self.check_pc, "Accent.TButton")
-        card = self.card(page, "Scheda Ethernet ENET")
-        self.text(card, "Scegli la scheda collegata all'auto. Sono elencati gli indirizzi locali 169.254.x.x. Wi-Fi e Internet non vengono modificati.", True)
+        self.button(row, "pc", "Check PC and adapters", self.check_pc, "Accent.TButton")
+        card = self.card(page, "ENET Ethernet adapter")
+        self.text(card, "Select the adapter connected to the car. Local 169.254.x.x addresses are listed. Wi-Fi and Internet settings are not changed.", True)
         self.adapter_combo = ttk.Combobox(card, textvariable=self.adapter, state="readonly", width=70)
         self.adapter_combo.pack(fill="x", pady=(0, 8))
         self.controls.append((self.adapter_combo, "readonly"))
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "scan", "Leggi la HU", self.scan, "Accent.TButton")
-        card = self.card(page, "Identificazione della centralina")
+        self.button(row, "scan", "Read HU", self.scan, "Accent.TButton")
+        card = self.card(page, "Head unit identification")
         ttk.Label(card, textvariable=self.hu_text, style="Body.TLabel", wraplength=800, justify="left").pack(anchor="w", fill="x", pady=(0, 11))
         self.svk_table = ttk.Treeview(card, columns=("type", "id", "version"), show="headings", height=4)
-        for name, label, width in (("type", "Componente", 130), ("id", "Identificativo", 210), ("version", "Versione", 210)):
+        for name, label, width in (("type", "Component", 130), ("id", "Identifier", 210), ("version", "Version", 210)):
             self.svk_table.heading(name, text=label); self.svk_table.column(name, width=width, stretch=True)
         self.svk_table.pack(fill="x")
-        self.text(card, "Il filtro del progetto non certifica ogni firmware. VIN diverso, HU non riconosciuta o CAFD assente richiedono di fermarsi.", True)
+        self.text(card, "The project filter does not certify every firmware. Stop if the VIN differs, the HU is unrecognized or CAFD is missing.", True)
 
     def _root_page(self, page):
-        card = self.card(page, "Backup coding: passaggio manuale con BimmerCode")
-        self.text(card, "Usa BimmerCode per leggere HU_MGU ed esportare un backup valido PRIMA dello sblocco. Questa app non crea né ripristina backup BimmerCode e non può certificarne il contenuto.")
+        card = self.card(page, "Coding backup: manual step with BimmerCode")
+        self.text(card, "Use BimmerCode to read HU_MGU and export a valid backup BEFORE unlocking. This app does not create or restore BimmerCode backups and cannot validate their contents.")
         ttk.Label(card, textvariable=self.backup_text, style="Muted.TLabel", wraplength=800).pack(anchor="w", fill="x")
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "backup_file", "Seleziona file backup…", self.pick_backup)
-        self.button(row, "backup_folder", "Seleziona cartella…", lambda: self.pick_backup(folder=True))
-        card = self.card(page, "Prima di modificare la HU")
-        self.check(card, self.backup_ok, "Ho un backup precedente esportato e una procedura di ripristino utilizzabile.")
-        self.check(card, self.hu_ok, "Ho verificato HU_MGU, iDrive 7 e la versione software della mia vettura.")
-        self.check(card, self.power_ok, "Auto ferma e alimentazione stabilizzata adeguata; PC alimentato, senza sospensione.")
-        self.check(card, self.physical_key, "Ho la chiave fisica. Il backup coding non salva le associazioni Digital Key.")
-        card = self.card(page, "Sblocco iniziale: Flash + Enable")
-        self.text(card, "Riprogramma la HU e abilita SSH con la procedura originale del progetto. Può cancellare coding/CAFD e Digital Key o rendere inutilizzabile la centralina. Se root funziona già, salta questo passaggio.")
-        self.text(card, "La procedura usa ID7, lascia la chiave univoca avanzata disattivata e richiede debug spento a fine operazione. Non sono disponibili forzature, Fix key o riparazioni automatiche.", True)
+        self.button(row, "backup_file", "Select backup file…", self.pick_backup)
+        self.button(row, "backup_folder", "Select folder…", lambda: self.pick_backup(folder=True))
+        card = self.card(page, "Before modifying the HU")
+        self.check(card, self.backup_ok, "I have an exported original backup and a usable recovery procedure.")
+        self.check(card, self.hu_ok, "I have verified HU_MGU, iDrive 7 and my vehicle software version.")
+        self.check(card, self.power_ok, "The vehicle is parked with suitable stabilized power; the PC is powered and will not sleep.")
+        self.check(card, self.physical_key, "I have the physical key. A coding backup does not preserve Digital Key pairings.")
+        card = self.card(page, "Initial unlock: Flash + Enable")
+        self.text(card, "Reprograms the HU and enables SSH using the original project procedure. It can erase coding/CAFD and Digital Key pairings or leave the HU unusable. Skip this step if root access already works.")
+        self.text(card, "The procedure uses ID7, leaves the advanced unique-key option disabled and requires debug to be off at completion. Force options, Fix key and automatic repairs are not available.", True)
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
         self.button(row, "flash", "Flash + Enable…", self.flash, "Danger.TButton")
         self.flash_hint = ttk.Label(card, text="", style="Muted.TLabel", wraplength=800)
         self.flash_hint.pack(anchor="w", fill="x", pady=(11, 0))
 
     def _key_page(self, page):
-        card = self.card(page, "Chiave privata root")
-        self.text(card, "Scegli id_rsa senza estensione, non id_rsa.pub o .ppk. Dopo uno sblocco riuscito, l'app seleziona il percorso restituito dal progetto. Non inviare il contenuto della chiave in chat.")
+        card = self.card(page, "Root private key")
+        self.text(card, "Choose id_rsa without an extension, not id_rsa.pub or .ppk. After a successful unlock, the app selects the path returned by the project. Do not share the key contents in chat.")
         entry = ttk.Entry(card, textvariable=self.key)
         entry.pack(fill="x", pady=(0, 7)); self.controls.append((entry, "normal"))
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "key", "Seleziona id_rsa…", self.pick_key)
-        self.button(row, "recover_key", "Recupera chiave originale sul PC", self.recover_key)
-        self.text(card, "Se il flash è terminato ma l'app si è fermata prima di esportare la chiave, puoi recuperare la chiave bootstrap già inclusa nel progetto. Non modifica la vettura e non garantisce che il login riesca.", True)
-        card = self.card(page, "Identità della HU e prova root")
-        self.text(card, "Prima acquisisci e conferma la chiave del SERVER HU sul collegamento ENET diretto. Questa impronta è diversa da quella della tua chiave privata elencata in connect.txt. Senza un riferimento precedente, è una scelta di fiducia iniziale.")
+        self.button(row, "key", "Select id_rsa…", self.pick_key)
+        self.button(row, "recover_key", "Recover original key on PC", self.recover_key)
+        self.text(card, "If flashing finished but the app stopped before exporting the key, you can recover the bootstrap key included in the project. This does not modify the vehicle or guarantee a successful login.", True)
+        card = self.card(page, "HU identity and root verification")
+        self.text(card, "First read and confirm the HU SERVER key over the direct ENET connection. This fingerprint differs from your private key fingerprint listed in connect.txt. Without an independent reference, this is trust on first use.")
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "fingerprint", "Leggi impronta HU…", self.read_fingerprint)
-        self.button(row, "ssh", "Verifica accesso root", self.verify_ssh, "Accent.TButton")
+        self.button(row, "fingerprint", "Read HU fingerprint…", self.read_fingerprint)
+        self.button(row, "ssh", "Verify root access", self.verify_ssh, "Accent.TButton")
         ttk.Label(card, textvariable=self.root_text, style="Body.TLabel", wraplength=800).pack(anchor="w", pady=(12, 0))
-        card = self.card(page, "Ripristino coding e controllo funzioni")
-        self.text(card, "Se hai effettuato il flash: dopo la sua conclusione, chiudi le connessioni diagnostiche e ripristina in BimmerCode il backup PRECEDENTE. Poi ricollega ENET al PC. Se una funzione rimane assente, risolvi il coding prima dello Store.")
-        self.check(card, self.coding_ok, "Ho ripristinato il coding se necessario e verificato le funzioni originali della HU.")
-        card = self.card(page, "Completa SSH già aperto — senza nuovo flash")
-        self.text(card, "Dopo un'interruzione successiva al flash: prima verifica il login root e il coding. Questo pulsante installa la persistenza SSH e disattiva il debug tramite la procedura originale. Modifica servizi sulla HU; non esegue flash, enrollment o riavvii automatici.")
+        card = self.card(page, "Coding recovery and function checks")
+        self.text(card, "If you flashed the HU, wait for completion, close diagnostic connections and restore the ORIGINAL backup in BimmerCode. Then reconnect ENET to the PC. Resolve any missing functions before installing the Store.")
+        self.check(card, self.coding_ok, "I have restored coding if needed and checked the original HU functions.")
+        card = self.card(page, "Complete existing SSH — no new flash")
+        self.text(card, "After an interruption following the flash, verify root login and coding first. This action installs SSH persistence and disables debug using the original procedure. It changes HU services without flashing, enrollment or automatic restarts.")
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "persist", "Completa persistenza SSH…", self.persist, "Accent.TButton")
+        self.button(row, "persist", "Complete SSH persistence…", self.persist, "Accent.TButton")
 
     def _store_page(self, page):
-        card = self.card(page, "Componenti locali, verificati prima dell'uso")
-        self.text(card, "L'installer ufficiale usa i componenti inclusi nel pacchetto. Non serve Internet per la prima installazione. Gli aggiornamenti e le app aggiuntive possono richiederlo. Il controllo SHA256 rileva modifiche, non certifica la compatibilità BMW.")
+        card = self.card(page, "Local components, verified before use")
+        self.text(card, "The upstream installer uses the bundled components. The first installation does not need Internet access; updates and additional apps may need it. SHA-256 checks detect changes, not BMW compatibility.")
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "files", "Verifica file del pacchetto", self.verify_files)
+        self.button(row, "files", "Verify package files", self.verify_files)
         ttk.Label(card, textvariable=self.store_text, style="Body.TLabel", wraplength=800).pack(anchor="w", fill="x", pady=(12, 0))
-        card = self.card(page, "Prima installazione dello Store")
-        self.text(card, "Installa Store, deploy, updater, app-privacy, Python sulla HU e renderer. Scrive file e modifica servizi della centralina. L'installer non avvia lo sblocco root. Il riavvio finale è un'azione separata.")
-        self.check(card, self.uplink, "Includi Internet uplink (configurazione completa del progetto)")
-        self.text(card, "App-privacy interviene sui report applicativi: non garantisce invisibilità o conservazione della garanzia. Il Wi-Fi/Internet dello Store andrà configurato sulla HU.", True)
+        card = self.card(page, "First Store installation")
+        self.text(card, "Installs Store, deploy, updater, app-privacy, HU Python and renderer. It writes files and changes HU services. The installer does not perform the root unlock. The final restart is a separate action.")
+        self.check(card, self.uplink, "Include Internet uplink (full project configuration)")
+        self.text(card, "App-privacy changes application reporting; it does not guarantee invisibility or warranty coverage. Configure Store Wi-Fi/Internet on the HU.", True)
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "install", "Installa MGU Store…", self.install, "Accent.TButton")
+        self.button(row, "install", "Install MGU Store…", self.install, "Accent.TButton")
         self.install_hint = ttk.Label(card, text="", style="Muted.TLabel", wraplength=800)
         self.install_hint.pack(anchor="w", fill="x", pady=(11, 0))
 
     def _finish_page(self, page):
-        card = self.card(page, "Riavvio della head unit")
-        self.text(card, "Dopo un'installazione riuscita, riavvia la HU a vettura ferma per completare l'attivazione. Non spegnere la vettura né scollegare l'alimentazione mentre un'operazione è in corso.")
+        card = self.card(page, "Head unit restart")
+        self.text(card, "After a successful installation, restart the HU with the vehicle parked to complete activation. Do not turn off the vehicle or disconnect power while an operation is running.")
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
-        self.button(row, "reboot", "Riavvia la HU…", self.reboot, "Accent.TButton")
-        card = self.card(page, "Controlli nell'auto")
+        self.button(row, "reboot", "Restart HU…", self.reboot, "Accent.TButton")
+        card = self.card(page, "In-car checks")
         for var, text in zip(self.final_checks, (
-                "MGU Store compare tra le app e si apre.",
-                "Audio, lingua, menu e impostazioni originali sono regolari.",
-                "Ho controllato in sicurezza telecamera e altre funzioni originali.",
-                "Ho conservato backup coding, chiavi e log in un luogo protetto.")):
+                "MGU Store appears in the app list and opens.",
+                "Audio, language, menus and original settings work correctly.",
+                "I have safely checked the camera and other original functions.",
+                "I have stored coding backups, keys and logs in a safe place.")):
             self.check(card, var, text)
-        self.text(card, "Per Internet: nello Store usa Settings → Wi-Fi e l'hotspot del telefono, poi verifica Online. Il PC online non rende automaticamente online la HU. Installa soltanto app compatibili ID7, una alla volta.", True)
-        self.text(card, "Se qualcosa non funziona: conserva il log, non riflashare e non applicare riparazioni automatiche. I controlli spuntati sono dichiarazioni dell'utente, non test automatici.", True)
+        self.text(card, "For Internet access, use Store Settings → Wi-Fi and your phone hotspot, then check Online. An online PC does not automatically connect the HU to the Internet. Install only ID7-compatible apps, one at a time.", True)
+        self.text(card, "If something does not work, keep the log, do not reflash and do not apply automatic repairs. Checked boxes are user confirmations, not automated tests.", True)
 
     def show_stage(self, index):
         for page in self.pages:
@@ -362,7 +362,7 @@ class MGUApp:
         self.pages[index].pack(fill="both", expand=True)
         number, title, subtitle = self.STAGES[index]
         self.stage_title.set(title)
-        self.stage_subtitle.set("PASSAGGIO " + number + " DI 5  ·  " + subtitle)
+        self.stage_subtitle.set("STEP " + number + " OF 5  ·  " + subtitle)
         for i, button in enumerate(self.nav_buttons):
             button.configure(bg="#263f65" if i == index else NAVY, fg="white" if i == index else "#d6e1ef")
         self.canvas.yview_moveto(0)
@@ -404,8 +404,8 @@ class MGUApp:
         self.install_success = False
         self.flash_success = False
         self.coding_ok.set(False)
-        self.hu_text.set("Scheda cambiata: ripeti la lettura della HU.")
-        self.root_text.set("Accesso root non verificato")
+        self.hu_text.set("Adapter changed: read the HU again.")
+        self.root_text.set("Root access not verified")
         for item in self.svk_table.get_children():
             self.svk_table.delete(item)
         self._refresh()
@@ -413,7 +413,7 @@ class MGUApp:
     def _key_changed(self, *_):
         self.ssh_verified = None
         self.install_success = False
-        self.root_text.set("Chiave cambiata: ripeti la verifica root.")
+        self.root_text.set("Key changed: verify root access again.")
         self._refresh()
 
     def _prerequisite_changed(self, *_):
@@ -437,14 +437,14 @@ class MGUApp:
         for name, enabled in available.items():
             self.actions[name].configure(state="normal" if enabled and not self.busy else "disabled")
         if self.demo:
-            self.flash_hint.configure(text="Modalità demo: tutte le operazioni di scrittura sulla vettura sono bloccate.")
+            self.flash_hint.configure(text="Demo mode: all vehicle writes are blocked.")
         elif self._flash_attempted():
-            self.flash_hint.configure(text="Un tentativo di flash è già registrato per questo VIN: ripetizione bloccata anche dopo un riavvio. Consulta la guida di recupero e conserva il log.")
+            self.flash_hint.configure(text="A flash attempt is already recorded for this VIN; another attempt is blocked even after restarting. See the recovery guide and keep the log.")
         elif self._root_seen() or self.flash_success or (self.scan_result or {}).get('ssh_open'):
-            self.flash_hint.configure(text="Porta SSH aperta o sblocco già riuscito: non ripetere il flash. Verifica il login nella pagina Chiave e coding.")
+            self.flash_hint.configure(text="SSH is open or unlocking already succeeded: do not flash again. Verify login on the Key and coding page.")
         else:
-            self.flash_hint.configure(text="Servono lettura HU valida, backup selezionato e tutte le conferme. La lettura verrà ripetuta immediatamente prima del flash.")
-        self.install_hint.configure(text="Servono: HU identificata, backup e alimentazione confermati, login root verificato, coding controllato e file integri." if not self.demo else "Modalità demo: l'installazione è disabilitata.")
+            self.flash_hint.configure(text="Requires a valid HU reading, a selected backup and all confirmations. The reading is repeated immediately before flashing.")
+        self.install_hint.configure(text="Requires: identified HU, confirmed backup and power, verified root login, checked coding and verified files." if not self.demo else "Demo mode: installation is disabled.")
 
     def thread_log(self, line):
         self.events.put(("log", str(line)))
@@ -456,7 +456,7 @@ class MGUApp:
             self.log_file.write(line)
         except OSError:
             if not self.log_error:
-                line += "REGISTRO NON SCRIVIBILE: conserva il testo dalla finestra. Nessuna nuova scrittura sarà avviata; quella in corso deve terminare.\n"
+                line += "LOG NOT WRITABLE: save the text from this window. No new write will start; the current write must finish.\n"
             self.log_error = True
         self.log_widget.configure(state="normal")
         self.log_widget.insert("end", line)
@@ -467,14 +467,14 @@ class MGUApp:
         if self.busy:
             return
         if writes and self.log_error:
-            messagebox.showerror("Registro non scrivibile", "Risolvi il problema del registro prima di una nuova operazione. Conserva il testo dalla finestra.", parent=self.root)
+            messagebox.showerror("Log not writable", "Resolve the log problem before starting another operation. Save the text from this window.", parent=self.root)
             return
         if writes and self.demo:
-            messagebox.showinfo("Demo", "Le operazioni sulla vettura sono bloccate in modalità demo.", parent=self.root)
+            messagebox.showinfo("Demo", "Vehicle operations are blocked in demo mode.", parent=self.root)
             return
         self.busy = True
         self.write_busy = writes
-        self.status.set(title + (" · non scollegare, non chiudere l'app" if writes else " · operazione in corso"))
+        self.status.set(title + (" · do not disconnect or close the app" if writes else " · operation in progress"))
         self.progress.start(12)
         self._refresh()
         self._log(title)
@@ -501,25 +501,25 @@ class MGUApp:
                     self.progress.stop()
                     if kind == "success":
                         title, result, callback = payload
-                        self._log(title + ": completato.")
-                        self.status.set("Completato · " + title)
+                        self._log(title + ": completed.")
+                        self.status.set("Completed · " + title)
                         if callback:
                             try:
                                 callback(result)
                             except Exception as exc:
                                 if was_writing:
                                     self._adapter_changed()
-                                self._log("Esito non utilizzabile: " + str(exc))
-                                self.status.set("Esito da verificare · consulta il registro")
-                                messagebox.showerror("Esito da verificare", str(exc), parent=self.root)
+                                self._log("Unusable result: " + str(exc))
+                                self.status.set("Result needs review · check the log")
+                                messagebox.showerror("Result needs review", str(exc), parent=self.root)
                     else:
                         if was_writing:
                             self._adapter_changed()
-                            self.hu_text.set("Esito della scrittura da verificare: ripeti la lettura HU. Non ripetere il flash.")
+                            self.hu_text.set("Write result needs review: read the HU again. Do not repeat the flash.")
                         title, error = payload
-                        self._log(title + ": ERRORE — " + error)
-                        self.status.set("Operazione non riuscita · consulta il registro")
-                        messagebox.showerror("Operazione non riuscita", error + "\n\nConserva il log. Nessuna riparazione o ripetizione del flash verrà avviata automaticamente.", parent=self.root)
+                        self._log(title + ": ERROR — " + error)
+                        self.status.set("Operation failed · check the log")
+                        messagebox.showerror("Operation failed", error + "\n\nKeep the log. No repair or repeat flash will start automatically.", parent=self.root)
                     self._refresh()
         except queue.Empty:
             pass
@@ -528,16 +528,16 @@ class MGUApp:
     def check_pc(self):
         def done(data):
             self.pc_checked = bool(data.get("ssh"))
-            self.pc_text.set("OpenSSH disponibile" if self.pc_checked else "Client OpenSSH non disponibile: installalo dalle Funzionalità facoltative Windows.")
+            self.pc_text.set("OpenSSH available" if self.pc_checked else "OpenSSH Client is unavailable: install it through Windows Optional Features.")
             self.adapters = {}
             for item in data.get("adapters", []):
-                label = f"{item['name']}  ·  {item['ip']}  ·  indice {item['index']}"
+                label = f"{item['name']}  ·  {item['ip']}  ·  index {item['index']}"
                 self.adapters[label] = item
             self.adapter_combo.configure(values=list(self.adapters))
             self.adapter.set(next(iter(self.adapters)) if len(self.adapters) == 1 else "")
             if not self.adapters:
-                self.pc_text.set(self.pc_text.get() + " · Nessuna Ethernet ENET attiva: controlla cavo, adattatore e quadro.")
-        self._operation("Controllo locale del PC", self.backend.check_pc, done)
+                self.pc_text.set(self.pc_text.get() + " · No active ENET Ethernet adapter: check the cable, adapter and ignition.")
+        self._operation("Local PC check", self.backend.check_pc, done)
 
     def scan(self):
         self.ssh_verified = None
@@ -549,32 +549,32 @@ class MGUApp:
         def done(data):
             self.scan_result = data
             self.scan_time = time.monotonic()
-            compatibility = "Filtro MGU riconosciuto" if data.get("supported") else "HU non supportata: fermarsi"
-            coding = "CAFD presente" if data.get("cafd_ok") else "CAFD assente/non valido: fermarsi"
-            self.hu_text.set(f"VIN: {data.get('vin', 'non disponibile')}\nGateway: {data.get('gateway', '—')}   •   HU: {data.get('hu_ip', '—')}\n{compatibility}   •   {coding}\nPorta SSH: {'aperta (non prova il login root)' if data.get('ssh_open') else 'non raggiungibile'}")
+            compatibility = "MGU filter passed" if data.get("supported") else "Unsupported HU: stop"
+            coding = "CAFD present" if data.get("cafd_ok") else "CAFD missing/invalid: stop"
+            self.hu_text.set(f"VIN: {data.get('vin', 'unavailable')}\nGateway: {data.get('gateway', '—')}   •   HU: {data.get('hu_ip', '—')}\n{compatibility}   •   {coding}\nSSH port: {'open (does not prove root login)' if data.get('ssh_open') else 'unreachable'}")
             for item in self.svk_table.get_children():
                 self.svk_table.delete(item)
             for record in data.get("svk", []):
                 self.svk_table.insert("", "end", values=(record.get("type"), record.get("id"), record.get("version")))
-            self.root_text.set("Accesso root non verificato")
-        self._operation("Lettura HU in sola lettura", lambda: self.backend.scan(local_ip), done)
+            self.root_text.set("Root access not verified")
+        self._operation("Read-only HU check", lambda: self.backend.scan(local_ip), done)
 
     def pick_backup(self, folder=False):
-        selected = filedialog.askdirectory(title="Seleziona la cartella dei backup esportati", parent=self.root) if folder else filedialog.askopenfilename(title="Seleziona un backup coding precedente al flash", parent=self.root)
+        selected = filedialog.askdirectory(title="Select the exported backup folder", parent=self.root) if folder else filedialog.askopenfilename(title="Select a coding backup made before flashing", parent=self.root)
         if selected:
             self.backup.set(selected)
             self.backup_ok.set(False)
-            self.backup_text.set(selected + "\nPercorso registrato; validità e ripristinabilità da confermare personalmente.")
+            self.backup_text.set(selected + "\nPath recorded; you must confirm backup validity and recoverability yourself.")
 
     def flash(self):
         if self.demo or not self._scan_ready() or not self._prerequisites() or self._root_seen() or self._flash_attempted() or self.flash_success or self.scan_result.get('ssh_open'):
             return
         vin = self.scan_result["vin"]
-        confirmation = simpledialog.askstring("Conferma VIN prima del flash", "Il flash può cancellare coding/CAFD e Digital Key e danneggiare la HU.\n\nVIN rilevato: " + vin + "\n\nConfrontalo con la vettura e riscrivilo per proseguire:", parent=self.root)
+        confirmation = simpledialog.askstring("Confirm VIN before flashing", "Flashing can erase coding/CAFD and Digital Key pairings and damage the HU.\n\nDetected VIN: " + vin + "\n\nCompare it with the vehicle and type it again to continue:", parent=self.root)
         if confirmation is None or confirmation.strip().upper() != vin.upper():
-            self._log("Flash non avviato: VIN non confermato.")
+            self._log("Flash not started: VIN not confirmed.")
             return
-        if not messagebox.askyesno("Ultima conferma: riprogrammazione HU", "Avviare davvero Flash + Enable sulla tua auto?\n\nLa lettura HU verrà ricontrollata prima della scrittura. Mantieni alimentazione ed ENET collegati per tutta l'operazione. Non interrompere l'app.\n\nQuesta conferma non certifica la compatibilità del firmware.", icon="warning", default="no", parent=self.root):
+        if not messagebox.askyesno("Final confirmation: HU reprogramming", "Start Flash + Enable on your vehicle?\n\nThe HU reading will be checked again before writing. Keep power and ENET connected throughout the operation. Do not interrupt the app.\n\nThis confirmation does not certify firmware compatibility.", icon="warning", default="no", parent=self.root):
             return
         self.ssh_verified = None
         self.coding_ok.set(False)
@@ -587,16 +587,16 @@ class MGUApp:
             self.known_root_vins.add(vin)
             if data.get("key"):
                 self.key.set(str(data["key"]))
-            self.root_text.set("Sblocco completato. Ripristina il coding, poi verifica la chiave e il login root.")
-            messagebox.showinfo("Sblocco concluso", "Ora ripristina il backup precedente con BimmerCode e verifica le funzioni originali. Poi torna in Chiave e coding.\n\nNon ripetere il flash.", parent=self.root)
+            self.root_text.set("Unlock completed. Restore coding, then verify the key and root login.")
+            messagebox.showinfo("Unlock completed", "Now restore the original backup with BimmerCode and check the original functions. Then return to Key and coding.\n\nDo not repeat the flash.", parent=self.root)
             self.show_stage(2)
-        self._operation("Flash + Enable — NON INTERROMPERE", lambda: self.backend.flash(vin, scan["gateway"], scan["hu_ip"], local_ip), done, writes=True)
+        self._operation("Flash + Enable — DO NOT INTERRUPT", lambda: self.backend.flash(vin, scan["gateway"], scan["hu_ip"], local_ip), done, writes=True)
 
     def pick_key(self):
-        selected = filedialog.askopenfilename(title="Seleziona la chiave privata id_rsa senza estensione", filetypes=[("Tutti i file", "*")], parent=self.root)
+        selected = filedialog.askopenfilename(title="Select the id_rsa private key without an extension", filetypes=[("All files", "*")], parent=self.root)
         if selected:
             if selected.lower().endswith((".pub", ".ppk", ".pub.pem")):
-                messagebox.showerror("File non adatto", "Seleziona id_rsa senza estensione, non la chiave pubblica o il formato PuTTY.", parent=self.root)
+                messagebox.showerror("Unsuitable file", "Select id_rsa without an extension, not the public key or PuTTY format.", parent=self.root)
                 return
             self.key.set(selected)
 
@@ -606,13 +606,13 @@ class MGUApp:
         vin = self.scan_result['vin']
         def done(data):
             self.key.set(data['key'])
-            self.root_text.set('Chiave originale recuperata sul PC. Ora leggi l’impronta HU e verifica il login root.')
-        self._operation('Recupero locale della chiave originale', lambda: self.backend.recover_key(vin), done)
+            self.root_text.set('Original key recovered on the PC. Now read the HU fingerprint and verify root login.')
+        self._operation('Local recovery of the original key', lambda: self.backend.recover_key(vin), done)
 
     def persist(self):
         if self.demo or not (self._scan_ready() and self._root_ready() and self._prerequisites() and self.coding_ok.get()):
             return
-        if not messagebox.askyesno('Completa SSH senza flash', 'Installare la persistenza SSH e disattivare il debug?\n\nSi modificano servizi della HU. Non verranno eseguiti flash, enrollment o riavvii automatici.\n\nMantieni alimentazione ed ENET collegati.', default='no', icon='warning', parent=self.root):
+        if not messagebox.askyesno('Complete SSH without flashing', 'Install SSH persistence and disable debug?\n\nThis changes HU services. No flashing, enrollment or automatic restarts will be performed.\n\nKeep power and ENET connected.', default='no', icon='warning', parent=self.root):
             return
         identity = self._identity()
         self.ssh_verified = None
@@ -620,8 +620,8 @@ class MGUApp:
             if ok:
                 self.ssh_verified = identity
                 self.known_root_vins.add(identity[0])
-                self.root_text.set('Persistenza SSH completata e login root ricontrollato. Puoi proseguire con lo Store.')
-        self._operation('Persistenza SSH — NON INTERROMPERE', lambda: self.backend.persist(*identity), done, writes=True)
+                self.root_text.set('SSH persistence completed and root login checked again. You can continue with the Store.')
+        self._operation('SSH persistence — DO NOT INTERRUPT', lambda: self.backend.persist(*identity), done, writes=True)
 
     def read_fingerprint(self):
         if not self.scan_result:
@@ -632,21 +632,21 @@ class MGUApp:
         def done(data):
             fingerprints = "\n".join(data.get("fingerprints", []))
             if not fingerprints or not data.get("key_lines"):
-                raise ValueError("Il server non ha restituito chiavi utilizzabili.")
+                raise ValueError("The server did not return usable keys.")
             if data.get("changed"):
-                self.root_text.set("Chiave server cambiata: connessione bloccata, verificare la causa.")
-                self._log("La chiave del server HU differisce da quella salvata. Nessuna sostituzione effettuata.")
-                messagebox.showerror("Chiave del server cambiata", "La HU presenta una chiave diversa da quella già salvata.\n\n" + fingerprints + "\n\nVerifica prima la causa. Non sostituire la chiave salvata e non ripetere il flash come tentativo.", parent=self.root)
+                self.root_text.set("Server key changed: connection blocked. Investigate the cause.")
+                self._log("The HU server key differs from the saved key. No replacement was made.")
+                messagebox.showerror("Server key changed", "The HU presents a different key from the one already saved.\n\n" + fingerprints + "\n\nInvestigate the cause first. Do not replace the saved key or try flashing again.", parent=self.root)
                 return
-            prompt = "HU " + hu + " sul collegamento " + local + "\n\n" + fingerprints + "\n\nConfronta con un riferimento attendibile, se disponibile. Senza un riferimento questa è fiducia al primo collegamento. Non è la fingerprint della chiave privata in connect.txt.\n\nAccettare queste chiavi del server?"
-            if messagebox.askyesno("Conferma identità della HU", prompt, icon="warning", default="no", parent=self.root):
+            prompt = "HU " + hu + " over connection " + local + "\n\n" + fingerprints + "\n\nCompare with a trusted reference if available. Without a reference, this is trust on first use. This is not the private key fingerprint in connect.txt.\n\nAccept these server keys?"
+            if messagebox.askyesno("Confirm HU identity", prompt, icon="warning", default="no", parent=self.root):
                 def accepted(_):
                     self.host_accepted = (hu, local)
-                    self.root_text.set("Identità server accettata. Ora verifica il login root.")
-                self._operation("Salvataggio locale della chiave server", lambda: self.backend.accept_host(hu, data["key_lines"]), accepted)
+                    self.root_text.set("Server identity accepted. Now verify root login.")
+                self._operation("Saving the server key locally", lambda: self.backend.accept_host(hu, data["key_lines"]), accepted)
             else:
-                self.root_text.set("Chiave server non accettata; login bloccato.")
-        self._operation("Lettura dell'impronta server HU", lambda: self.backend.host_fingerprint(hu, local), done)
+                self.root_text.set("Server key not accepted; login blocked.")
+        self._operation("Reading the HU server fingerprint", lambda: self.backend.host_fingerprint(hu, local), done)
 
     def verify_ssh(self):
         if not self.scan_result:
@@ -655,46 +655,46 @@ class MGUApp:
         identity = self._identity()
         def done(ok):
             if not ok:
-                self.root_text.set("Login root non riuscito. Non installare lo Store.")
+                self.root_text.set("Root login failed. Do not install the Store.")
                 return
             self.ssh_verified = identity
             self.known_root_vins.add(identity[0])
-            self.root_text.set("Accesso root confermato: id -u = 0. Nessun file applicativo modificato sulla HU.")
-        self._operation("Verifica login root (sola lettura)", lambda: self.backend.verify_ssh(identity[2], identity[3], identity[4]), done)
+            self.root_text.set("Root access confirmed: id -u = 0. No application files changed on the HU.")
+        self._operation("Verify root login (read-only)", lambda: self.backend.verify_ssh(identity[2], identity[3], identity[4]), done)
 
     def verify_files(self):
         self.files_verified = False
         def done(data):
             self.files_verified = True
-            self.store_text.set("Integrità del pacchetto verificata. I file saranno ricontrollati prima dell'installazione.")
-        self._operation("Verifica SHA256 del pacchetto", self.backend.verify_files, done)
+            self.store_text.set("Package integrity verified. Files will be checked again before installation.")
+        self._operation("Verify package SHA-256", self.backend.verify_files, done)
 
     def install(self):
         if self.demo or not (self._scan_ready() and self._root_ready() and self._prerequisites() and self.coding_ok.get() and self.files_verified):
             return
-        if not messagebox.askyesno("Installazione MGU Store", "Installare i componenti locali sulla HU?\n\nQuesta operazione modifica file e servizi. Non esegue il flash root. Il riavvio finale sarà richiesto separatamente.\n\nMantieni alimentazione ed ENET collegati.", icon="warning", default="no", parent=self.root):
+        if not messagebox.askyesno("MGU Store installation", "Install the local components on the HU?\n\nThis operation changes files and services. It does not perform a root flash. The final restart will be requested separately.\n\nKeep power and ENET connected.", icon="warning", default="no", parent=self.root):
             return
         identity = self._identity()
         include_uplink = self.uplink.get()
         self.install_success = False
         def done(_):
             self.install_success = True
-            self.store_text.set("Installer terminato correttamente. Vai a Riavvio e verifica per completare e controllare l'auto.")
+            self.store_text.set("Installer completed successfully. Go to Restart and verify to finish and check the vehicle.")
             self.show_stage(4)
-        self._operation("Installazione Store — NON INTERROMPERE", lambda: self.backend.install(identity[2], identity[3], identity[4], include_uplink=include_uplink), done, writes=True)
+        self._operation("Store installation — DO NOT INTERRUPT", lambda: self.backend.install(identity[2], identity[3], identity[4], include_uplink=include_uplink), done, writes=True)
 
     def reboot(self):
         if self.demo or not (self.install_success and self._root_ready() and self.power_ok.get()):
             return
-        if not messagebox.askyesno("Riavvio della HU", "Riavviare adesso la head unit, a vettura ferma?\n\nAttendi il ritorno di iDrive prima di verificare le app e le funzioni originali.", default="no", parent=self.root):
+        if not messagebox.askyesno("HU restart", "Restart the head unit now, with the vehicle parked?\n\nWait for iDrive to return before checking apps and original functions.", default="no", parent=self.root):
             return
         identity = self._identity()
         def done(_):
             self.ssh_verified = None
             self.host_accepted = None
-            self.root_text.set("HU riavviata: per altre operazioni ripeti lettura HU e login root.")
-            messagebox.showinfo("Richiesta di riavvio inviata", "Attendi iDrive, cerca MGU Store tra le app e completa i controlli della pagina. Non riflashare se la tile non compare.", parent=self.root)
-        self._operation("Riavvio della HU", lambda: self.backend.reboot(identity[2], identity[3], identity[4]), done, writes=True)
+            self.root_text.set("HU restarted: read the HU and verify root login again before further operations.")
+            messagebox.showinfo("Restart request sent", "Wait for iDrive, find MGU Store in the app list and complete the checks on this page. Do not reflash if the tile is missing.", parent=self.root)
+        self._operation("HU restart", lambda: self.backend.reboot(identity[2], identity[3], identity[4]), done, writes=True)
 
     def open_guide(self):
         candidates = [self.resource_dir / "guida.html"]
@@ -702,7 +702,7 @@ class MGUApp:
             if path.is_file():
                 os.startfile(str(path))
                 return
-        messagebox.showinfo("Guida", "Segui i cinque passaggi dell'interfaccia. La guida completa si trova accanto al programma nel pacchetto distribuito.", parent=self.root)
+        messagebox.showinfo("Guide", "Follow the five steps in the interface. The full guide is included alongside the application in the release package.", parent=self.root)
 
     def open_log(self):
         self.log_file.flush()
@@ -711,17 +711,17 @@ class MGUApp:
     def copy_log(self):
         self.root.clipboard_clear()
         self.root.clipboard_append(self.log_widget.get("1.0", "end-1c"))
-        self.status.set("Log copiato. Oscura VIN e dati personali prima di condividerlo.")
+        self.status.set("Log copied. Remove VINs and personal data before sharing.")
 
     def export_log(self):
-        destination = filedialog.asksaveasfilename(title="Esporta il log (può contenere VIN)", defaultextension=".txt", initialfile=self.log_path.stem + ".txt", filetypes=[("Testo", "*.txt")], parent=self.root)
+        destination = filedialog.asksaveasfilename(title="Export log (may contain VINs)", defaultextension=".txt", initialfile=self.log_path.stem + ".txt", filetypes=[("Text", "*.txt")], parent=self.root)
         if destination:
             Path(destination).write_text(self.log_widget.get("1.0", "end-1c"), encoding="utf-8")
-            self.status.set("Log esportato. Esaminalo prima di condividerlo.")
+            self.status.set("Log exported. Review it before sharing.")
 
     def close(self):
         if self.busy:
-            messagebox.showwarning("Operazione in corso", "Attendi la conclusione prima di chiudere l'app." + ("\nNon interrompere alimentazione, ENET o processo durante una scrittura." if self.write_busy else ""), parent=self.root)
+            messagebox.showwarning("Operation in progress", "Wait for completion before closing the app." + ("\nDo not interrupt power, ENET or the process during a write." if self.write_busy else ""), parent=self.root)
             return
         self.closed = True
         self.log_file.close()
@@ -729,8 +729,8 @@ class MGUApp:
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="MGU Assistant — interfaccia Windows guidata")
-    parser.add_argument("--demo", action="store_true", help="dati dimostrativi, nessuna operazione sulla vettura")
+    parser = argparse.ArgumentParser(description="MGU Assistant — guided Windows interface")
+    parser.add_argument("--demo", action="store_true", help="sample data, no vehicle operations")
     parser.add_argument("--state-dir", type=Path)
     parser.add_argument("--resource-dir", type=Path)
     parser.add_argument("--worker", choices=["flash", "persist"])
@@ -740,14 +740,14 @@ def main(argv=None):
     parser.add_argument("--hu-ip")
     parser.add_argument("--local-ip")
     parser.add_argument("--ui-smoke", action="store_true", help=argparse.SUPPRESS)
-    parser.add_argument("--self-test", action="store_true", help="verifica locale di dipendenze e risorse, senza contattare la vettura")
+    parser.add_argument("--self-test", action="store_true", help="check local dependencies and resources without contacting a vehicle")
     args = parser.parse_args(argv)
     resource_dir = args.resource_dir or app_folder() / "resources"
     state_dir = args.state_dir or Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "MGUAssistant"
     if args.self_test:
         _restore_worker_streams()
         try:
-            print("Test locale del log: à → • ✓", file=sys.stderr, flush=True)
+            print("Local logging test: à → • ✓", file=sys.stderr, flush=True)
             tester = Backend(resource_dir, state_dir, lambda line: print(str(line), file=sys.stderr), demo=True)
             result = {"integrity": tester.verify_files(), "dependencies": tester.self_check(),
                       "logging": "UTF-8: à → • ✓", "version": VERSION}
@@ -759,13 +759,13 @@ def main(argv=None):
     if args.worker:
         _restore_worker_streams()
         if args.demo or args.ui_smoke:
-            print("Modalità demo: worker di scrittura bloccato.", file=sys.stderr, flush=True)
+            print("Demo mode: write worker blocked.", file=sys.stderr, flush=True)
             return 1
         try:
             result = run_root_worker(args, state_dir, resource_dir)
             return int(result or 0)
         except BaseException as exc:
-            print("ERRORE worker:", str(exc), file=sys.stderr, flush=True)
+            print("Worker ERROR:", str(exc), file=sys.stderr, flush=True)
             return 1
     root = tk.Tk()
     application = MGUApp(root, resource_dir, state_dir, demo=args.demo or args.ui_smoke)

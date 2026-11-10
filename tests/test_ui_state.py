@@ -72,7 +72,7 @@ class UIStateTests(unittest.TestCase):
         self.assertTrue(app.log_error)
         self.assertTrue(app.busy)
         self.assertTrue(app.write_busy)
-        self.assertIn('REGISTRO NON SCRIVIBILE', app.log_widget.insert.call_args.args[1])
+        self.assertIn('LOG NOT WRITABLE', app.log_widget.insert.call_args.args[1])
 
 
 if __name__ == '__main__':

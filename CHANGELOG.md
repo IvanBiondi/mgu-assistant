@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0-beta.3
+
+- Translate the five-stage Windows interface, confirmations, errors, activity messages, file dialogs and command-line help into English.
+- Translate the bundled offline guide and align the English README and recovery documentation with the actual English button labels.
+- Add real demo screenshots of all five screens, with synthetic data and vehicle writes disabled.
+- Update the optional Italian companion guide to refer to the English interface.
+- Preserve vehicle operations, compatibility gates, confirmations, flash journals, SSH checks and pinned upstream components. No additional BMW model or firmware compatibility is claimed.
+
 ## 0.2.0-beta.2
 
 - Preserve the verified upstream originals in a content-addressed resource snapshot. The upstream installer asset changed after the initial download; the first clean GitHub build correctly refused it.

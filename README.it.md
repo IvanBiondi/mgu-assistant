@@ -1,8 +1,10 @@
 # MGU Assistant
 
-Un programma per **Windows 11 x64**, con interfaccia in italiano, che accompagna nei controlli della head unit **MGU con iDrive 7**, nell'accesso SSH e nell'installazione di [MGU Store](https://github.com/robertnisipeanu/mgu-store) tramite ENET. [English documentation](README.md).
+Un programma per **Windows 11 x64**, con interfaccia in inglese, che accompagna nei controlli della head unit **MGU con iDrive 7**, nell'accesso SSH e nell'installazione di [MGU Store](https://github.com/robertnisipeanu/mgu-store) tramite ENET. [English documentation](README.md).
 
-**Versione pubblica beta: `v0.2.0-beta.2`. La compatibilità con tutte le BMW iDrive 7 non è dimostrata.** Conta la head unit effettivamente montata, con le sue versioni software, non soltanto il modello dell'auto. È disponibile un solo resoconto positivo del proprietario su BMW F44. Leggi [compatibilità](docs/compatibility.md) prima di procedere.
+Dalla beta.3, pulsanti, conferme, messaggi e guida offline sono in inglese. Questa guida italiana resta disponibile come supporto. La traduzione non amplia la compatibilità con altre vetture o firmware.
+
+**Versione pubblica beta: `v0.2.0-beta.3`. La compatibilità con tutte le BMW iDrive 7 non è dimostrata.** Conta la head unit effettivamente montata, con le sue versioni software, non soltanto il modello dell'auto. È disponibile un solo resoconto positivo del proprietario su BMW F44. Leggi [compatibilità](docs/compatibility.md) prima di procedere.
 
 Il progetto è indipendente: non è un prodotto BMW e non è approvato da BMW o dagli autori dei progetti utilizzati. Non garantisce un'installazione senza rischi, la copertura della garanzia o il funzionamento di ogni dotazione.
 
@@ -40,17 +42,17 @@ Questa sequenza è per una prima installazione su una configurazione la cui comp
 
 1. Metti l'auto nelle condizioni richieste per la procedura, ferma e con alimentazione stabile. Tieni la chiave fisica disponibile.
 2. Collega il cavo ENET alla vettura e alla scheda Ethernet del PC.
-3. Apri la sezione **Connessione** e premi **Controlla PC e schede**.
+3. Apri la sezione **Connection** e premi **Check PC and adapters**.
 4. Seleziona la scheda collegata a ENET. Un indirizzo `169.254.x.x` da solo non dimostra che sia quella corretta: controlla anche il nome della scheda e il collegamento fisico.
-5. Premi **Leggi la HU**. Verifica vettura, identificativi e versioni HU e stato SSH. Conserva privatamente il risultato.
+5. Premi **Read HU**. Verifica vettura, identificativi e versioni HU e stato SSH. Conserva privatamente il risultato.
 6. Se i dati sono inattesi, mancano oppure la compatibilità è incerta, fermati prima delle scritture.
 
 Questo controllo legge le informazioni disponibili; non certifica l'intero stato della vettura. La porta SSH aperta non dimostra che una chiave consenta l'accesso root.
 
 ### 2. Conferma backup e condizioni
 
-1. Apri **Backup e sblocco**.
-2. Premi **Seleziona file backup…** o **Seleziona cartella…** e indica il backup originale esportato.
+1. Apri **Backup and unlock**.
+2. Premi **Select backup file…** o **Select folder…** e indica il backup originale esportato.
 3. Spunta le conferme soltanto se vere: backup utilizzabile e ripristino conosciuto; HU_MGU/iDrive 7 e versione verificati; alimentazione stabile e PC senza sospensione; chiave fisica disponibile.
 
 Il programma non produce un backup completo dell'auto e non sostituisce BimmerCode. Se non hai il backup corretto, non proseguire.
@@ -68,38 +70,38 @@ Il programma non produce un backup completo dell'auto e non sostituisce BimmerCo
 
 Dopo un flash completato, ripristina manualmente tramite BimmerCode il backup originale corretto della HU_MGU quando necessario. Questa operazione avviene fuori dall'assistente e va eseguita secondo la procedura BimmerCode.
 
-Verifica che schermo e menu siano tornati operativi e controlla le funzioni originali. Torna nel programma e fai una nuova **Leggi la HU**. Se il ripristino non riesce o mancano funzioni originali, fermati e chiedi assistenza per il coding: non tentare un altro flash come rimedio.
+Verifica che schermo e menu siano tornati operativi e controlla le funzioni originali. Torna nel programma e fai una nuova **Read HU**. Se il ripristino non riesce o mancano funzioni originali, fermati e chiedi assistenza per il coding: non tentare un altro flash come rimedio.
 
 ### 5. Seleziona la chiave e verifica l'accesso root
 
-1. Apri **Chiave e coding**.
-2. Se hai già il file della chiave privata corretta, premi **Seleziona id_rsa…**.
-3. Se la procedura usa la chiave originale dell'immagine debug upstream e manca soltanto il file sul PC, premi **Recupera chiave originale sul PC**. È una copia locale di una chiave **condivisa**, non l'estrazione di una chiave unica dalla tua auto.
-4. Premi **Leggi impronta HU…**. Al primo collegamento ENET diretto assicurati che la HU sia quella desiderata e, se hai un riferimento indipendente, confronta l'impronta prima di confermare.
-5. Premi **Verifica accesso root**. Il controllo deve autenticarsi correttamente e verificare UID `0`.
+1. Apri **Key and coding**.
+2. Se hai già il file della chiave privata corretta, premi **Select id_rsa…**.
+3. Se la procedura usa la chiave originale dell'immagine debug upstream e manca soltanto il file sul PC, premi **Recover original key on PC**. È una copia locale di una chiave **condivisa**, non l'estrazione di una chiave unica dalla tua auto.
+4. Premi **Read HU fingerprint…**. Al primo collegamento ENET diretto assicurati che la HU sia quella desiderata e, se hai un riferimento indipendente, confronta l'impronta prima di confermare.
+5. Premi **Verify root access**. Il controllo deve autenticarsi correttamente e verificare UID `0`.
 
 La prima accettazione dell'impronta è un meccanismo di fiducia al primo uso: non certifica da sola l'identità della HU. Se in seguito l'impronta cambia, indaga il motivo; non cancellare alla cieca l'identità salvata. La chiave root, la chiave del certificato di enrollment e l'impronta del server sono elementi diversi.
 
 ### 6. Completa la persistenza SSH, se manca
 
-Dopo aver ripristinato il coding quando necessario e controllato le funzioni originali, spunta la relativa conferma. Se la procedura iniziale non aveva già completato la persistenza, premi **Completa persistenza SSH…**.
+Dopo aver ripristinato il coding quando necessario e controllato le funzioni originali, spunta la relativa conferma. Se la procedura iniziale non aveva già completato la persistenza, premi **Complete SSH persistence…**.
 
 Questa operazione modifica servizi della HU e disattiva il debug usando la procedura upstream fissata dal pacchetto. **Non è un controllo in sola lettura.** Non ripete flash o enrollment e non riavvia automaticamente. Attendi il risultato prima di procedere.
 
 ### 7. Installa MGU Store
 
-1. Apri **Installa Store** e premi **Verifica file del pacchetto**.
+1. Apri **Install Store** e premi **Verify package files**.
 2. Se un controllo SHA-256 fallisce, fermati: non modificare il valore atteso per superare il controllo.
-3. Leggi l'opzione **Includi Internet uplink** e scegli se includere il componente previsto dal progetto.
-4. Premi **Installa MGU Store…**, leggi la conferma e avvia l'installazione.
+3. Leggi l'opzione **Include Internet uplink** e scegli se includere il componente previsto dal progetto.
+4. Premi **Install MGU Store…**, leggi la conferma e avvia l'installazione.
 5. Attendi il risultato. Questa fase copia componenti locali e modifica file e servizi della HU; non esegue un nuovo flash root.
 
 L'installazione offline non fornisce automaticamente Internet alla vettura. Per app e aggiornamenti online configura una connessione supportata nelle impostazioni dello Store seguendo il progetto upstream. La connessione Internet del PC non equivale alla connessione Internet della HU.
 
 ### 8. Riavvia e verifica
 
-1. Dopo il completamento delle operazioni precedenti, apri **Riavvio e verifica**.
-2. Premi **Riavvia la HU…** e conferma soltanto a vettura ferma.
+1. Dopo il completamento delle operazioni precedenti, apri **Restart and verify**.
+2. Premi **Restart HU…** e conferma soltanto a vettura ferma.
 3. Attendi che iDrive torni disponibile.
 4. Controlla menu, audio, telecamere, sensori e le altre funzioni originali effettivamente presenti sull'auto.
 5. Apri MGU Store e verifica le app. Ripeti i controlli al successivo normale avvio della vettura.

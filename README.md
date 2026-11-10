@@ -1,10 +1,23 @@
 # MGU Assistant
 
-A Windows 11 desktop guide for checking a BMW **MGU head unit running iDrive 7**, preparing SSH access and installing [MGU Store](https://github.com/robertnisipeanu/mgu-store) through ENET. The current interface is in Italian; [the complete Italian guide is here](README.it.md).
+A Windows 11 desktop guide for checking a BMW **MGU head unit running iDrive 7**, preparing SSH access and installing [MGU Store](https://github.com/robertnisipeanu/mgu-store) through ENET. The interface, dialogs, application messages and offline guide are in **English**. An [Italian companion guide](README.it.md) is also available.
 
-**Public beta: `v0.2.0-beta.2`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified.
+**Public beta: `v0.2.0-beta.3`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified. This release translates the application; it does not expand vehicle or firmware support.
 
 This independent project is not BMW software and is not endorsed by BMW or the upstream projects. It does not promise a risk-free installation, warranty coverage or compatibility with every vehicle feature.
+
+## Preview the English interface
+
+These are actual application screenshots from **demo mode**, using synthetic data. They show the interface, not a completed installation or a compatibility result for a real vehicle.
+
+![Connection screen with synthetic demo HU information](docs/images/01-connection.png)
+
+| Prepare and recover | Install and verify |
+| --- | --- |
+| ![Backup and unlock screen in demo mode](docs/images/02-backup.png) | ![Offline Store installation screen in demo mode](docs/images/04-store.png) |
+| ![Key and coding recovery screen in demo mode](docs/images/03-key.png) | ![Restart and verification screen in demo mode](docs/images/05-restart.png) |
+
+Open any image for a full-size view. Vehicle writes are disabled in every demo screen.
 
 ## Download and try it
 
@@ -40,15 +53,15 @@ Create and export the appropriate **original HU_MGU coding backup** with BimmerC
 
 If SSH is already available, or a previous attempt reached the flash stage, start with [recovery](docs/troubleshooting.md). Do not repeat the first-install flash to solve a later problem.
 
-1. **Connect and read.** Connect ENET and supply power. In **Connessione**, choose **Controlla PC e schede**, select the ENET adapter and choose **Leggi la HU**. Review the displayed vehicle, HU identifiers, versions and SSH status. Stop if these are unexpected or compatibility is unresolved.
-2. **Confirm preparation.** In **Backup e sblocco**, select your exported backup file or folder. Confirm only statements you have actually checked: usable original backup, HU_MGU/iDrive 7 and firmware, stable power, and physical key. The app cannot check the contents of a BimmerCode backup.
+1. **Connect and read.** Connect ENET and supply power. In **Connection**, choose **Check PC and adapters**, select the ENET adapter and choose **Read HU**. Review the displayed vehicle, HU identifiers, versions and SSH status. Stop if these are unexpected or compatibility is unresolved.
+2. **Confirm preparation.** In **Backup and unlock**, select your exported backup file or folder. Confirm only statements you have actually checked: usable original backup, HU_MGU/iDrive 7 and firmware, stable power, and physical key. The app cannot check the contents of a BimmerCode backup.
 3. **First-time root preparation, only if appropriate.** **Flash + Enable…** is a vehicle write. Use it only for a verified compatible unit without an existing completed or interrupted attempt. Read the confirmation, check the vehicle identifier and supply the requested VIN. Let the operation finish. If it fails, stop and inspect its recorded stage; a failed overall result can still mean the flash completed. Never clear the journal to retry.
-4. **Restore and check coding.** After a completed flash, use BimmerCode manually to restore the correct original HU_MGU coding when required. This is outside the application. Confirm the screen, menus and original functions work, then perform a fresh **Leggi la HU**. If coding recovery fails, stop; do not flash again.
-5. **Select the root key.** In **Chiave e coding**, use **Seleziona id_rsa…** for an existing private key. For the original upstream debug-image key, **Recupera chiave originale sul PC** makes a local copy; it does not extract a unique key from your car. See the key explanation below.
-6. **Verify the server and root.** Choose **Leggi impronta HU…**. On the first direct ENET connection, verify that you are connected to the intended HU, compare the fingerprint with an independent reference if available, and confirm it. This is trust on first use, not independent authentication. Then choose **Verifica accesso root**; the authenticated account must have UID `0`. A changed stored fingerprint is a reason to investigate, not to delete the stored identity blindly.
-7. **Complete SSH persistence if needed.** After coding is restored and original functions are checked, select the corresponding confirmation and use **Completa persistenza SSH…** if the first operation did not already complete it. This changes HU services and disables debug through the pinned upstream procedure. It does not repeat flashing or enrollment, and does not restart automatically.
-8. **Install the Store.** In **Installa Store**, choose **Verifica file del pacchetto**. Review the Internet uplink option, then **Installa MGU Store…** and confirm. Installation uses the bundled local components and changes files and services on the HU. A hash mismatch must be investigated; do not replace the expected hash to make it pass.
-9. **Restart separately and verify.** In **Riavvio e verifica**, choose **Riavvia la HU…** only after previous operations have completed. Wait for iDrive to return. Check the original menus, audio, cameras, parking functions and other fitted functions, then the Store and installed apps. Recheck after the next normal vehicle startup.
+4. **Restore and check coding.** After a completed flash, use BimmerCode manually to restore the correct original HU_MGU coding when required. This is outside the application. Confirm the screen, menus and original functions work, then perform a fresh **Read HU**. If coding recovery fails, stop; do not flash again.
+5. **Select the root key.** In **Key and coding**, use **Select id_rsa…** for an existing private key. For the original upstream debug-image key, **Recover original key on PC** makes a local copy; it does not extract a unique key from your car. See the key explanation below.
+6. **Verify the server and root.** Choose **Read HU fingerprint…**. On the first direct ENET connection, verify that you are connected to the intended HU, compare the fingerprint with an independent reference if available, and confirm it. This is trust on first use, not independent authentication. Then choose **Verify root access**; the authenticated account must have UID `0`. A changed stored fingerprint is a reason to investigate, not to delete the stored identity blindly.
+7. **Complete SSH persistence if needed.** After coding is restored and original functions are checked, select the corresponding confirmation and use **Complete SSH persistence…** if the first operation did not already complete it. This changes HU services and disables debug through the pinned upstream procedure. It does not repeat flashing or enrollment, and does not restart automatically.
+8. **Install the Store.** In **Install Store**, choose **Verify package files**. Review the Internet uplink option, then **Install MGU Store…** and confirm. Installation uses the bundled local components and changes files and services on the HU. A hash mismatch must be investigated; do not replace the expected hash to make it pass.
+9. **Restart separately and verify.** In **Restart and verify**, choose **Restart HU…** only after previous operations have completed. Wait for iDrive to return. Check the original menus, audio, cameras, parking functions and other fitted functions, then the Store and installed apps. Recheck after the next normal vehicle startup.
 
 The offline installation does not give the car Internet access by itself. Configure a supported hotspot/tethering connection in the Store as described by its upstream project for online apps and updates. PC Internet access is separate from HU Internet access.
 

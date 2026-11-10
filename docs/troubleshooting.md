@@ -39,13 +39,13 @@ In the public beta, retry is bounded and limited to the matching busy response f
 
 ## Understanding the key buttons
 
-**Recupera chiave originale sul PC** copies the original upstream debug-image bootstrap key into local state. It does not contact the car to extract a newly generated key and does not change vehicle coding. That upstream key is shared; it is not unique per vehicle. It cannot recover an unrelated custom private key.
+**Recover original key on PC** copies the original upstream debug-image bootstrap key into local state. It does not contact the car to extract a newly generated key and does not change vehicle coding. That upstream key is shared; it is not unique per vehicle. It cannot recover an unrelated custom private key.
 
-**Leggi impronta HU…** reads the SSH host identity. On first use, confirming it establishes a locally pinned identity over the connection you chose. Compare against an independent trusted reference if one exists. If the saved identity changes, investigate whether the HU or software changed, or whether the wrong endpoint is connected. Do not blindly delete `known_hosts` or accept any replacement.
+**Read HU fingerprint…** reads the SSH host identity. On first use, confirming it establishes a locally pinned identity over the connection you chose. Compare against an independent trusted reference if one exists. If the saved identity changes, investigate whether the HU or software changed, or whether the wrong endpoint is connected. Do not blindly delete `known_hosts` or accept any replacement.
 
-**Verifica accesso root** checks authentication and UID `0`. A reachable port alone does not satisfy this step.
+**Verify root access** checks authentication and UID `0`. A reachable port alone does not satisfy this step.
 
-**Completa persistenza SSH…** is a write: it uses the pinned upstream persistence implementation to change HU services and disable debug. It is appropriate only after the required checks, with correct coding and working original functions. It does not reflash, repeat enrollment or restart automatically. If it fails, preserve the error and read the current state before any additional action.
+**Complete SSH persistence…** is a write: it uses the pinned upstream persistence implementation to change HU services and disable debug. It is appropriate only after the required checks, with correct coding and working original functions. It does not reflash, repeat enrollment or restart automatically. If it fails, preserve the error and read the current state before any additional action.
 
 ## State, backups and write journals
 
@@ -64,6 +64,7 @@ The selected BimmerCode backup path is a reference, not evidence that the backup
 | `0.1.2` | Added local bootstrap-key recovery and a separate persistence action for an already accessible HU, with root/coding checks and strict server identity handling |
 | `0.2.0-beta.1` | Public packaging, durable write journal and bounded retry for the specific read-only busy response; still no universal vehicle validation |
 | `0.2.0-beta.2` | Reproducible source-build resource preparation using a hash-verified mirror of the original bundle after CI detected a changed upstream installer asset; original URLs and expected hashes preserved |
+| `0.2.0-beta.3` | English interface, application messages and offline guide; actual demo screenshots; vehicle behavior and compatibility limits unchanged |
 
 Do not infer “nothing was written” from an encoding error in an unrelated run: the exact recorded stage matters.
 

@@ -15,9 +15,9 @@ class WorkerLoggingTests(unittest.TestCase):
         with patch.object(sys, 'stdout', out), patch.object(sys, 'stderr', err):
             _restore_worker_streams()
             print('Frame 1/174; 0%; transfer part 0; TX 0xF4 → 0x63 • 2 bytes', flush=True)
-            print('Integrità à → • ✓', file=sys.stderr, flush=True)
+            print('Integrity à → • ✓', file=sys.stderr, flush=True)
         self.assertIn('0xF4 → 0x63 •', raw_out.getvalue().decode('utf-8'))
-        self.assertEqual(raw_err.getvalue().decode('utf-8').splitlines(), ['Integrità à → • ✓'])
+        self.assertEqual(raw_err.getvalue().decode('utf-8').splitlines(), ['Integrity à → • ✓'])
 
     def test_stream_setup_is_idempotent_and_surrogate_safe(self):
         raw = io.BytesIO()
