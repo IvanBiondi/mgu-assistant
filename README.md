@@ -1,5 +1,7 @@
 # MGU Assistant
 
+[简体中文说明](README.zh-CN.md)
+
 A Windows 11 desktop guide for checking a BMW **MGU head unit running iDrive 7**, preparing SSH access and installing [MGU Store](https://github.com/robertnisipeanu/mgu-store) through ENET. The interface, dialogs, application messages and offline guide are in **English**. An [Italian companion guide](README.it.md) is also available.
 
 **Public beta: `v0.2.0-beta.3`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified. This release translates the application; it does not expand vehicle or firmware support.
