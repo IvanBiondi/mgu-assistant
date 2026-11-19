@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Include the Simplified Chinese UI and companion README merged in #2; document locale detection, `MGU_UI_LANGUAGE` and English diagnostic fallback. The beta.3 ZIP predates these changes.
+- Support direct ENET discovery on link-local and RFC1918 private IPv4 subnets (#3). Read the current Windows prefix, bind discovery and diagnostics to the selected address, and reject off-subnet peers, network/broadcast endpoints and ambiguous gateways.
+- Include `i18n.py` and `README.zh-CN.md` in portable source packages, and the Chinese guide beside the executable.
+- Record the X3M F97 hardware/firmware report from #1 as read-only detection, with installation and original-function compatibility explicitly unverified.
+- Preserve firmware gates, confirmation steps, SSH identity checks, flash journals and pinned upstream resources. No new real-vehicle validation is claimed.
+
 ## 0.2.0-beta.3
 
 - Translate the five-stage Windows interface, confirmations, errors, activity messages, file dialogs and command-line help into English.

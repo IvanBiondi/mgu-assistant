@@ -270,7 +270,7 @@ class MGUApp:
         row = ttk.Frame(card, style="Card.TFrame"); row.pack(fill="x")
         self.button(row, "pc", tr("Check PC and adapters"), self.check_pc, "Accent.TButton")
         card = self.card(page, tr("ENET Ethernet adapter"))
-        self.text(card, tr("Select the adapter connected to the car. Local 169.254.x.x addresses are listed. Wi-Fi and Internet settings are not changed."), True)
+        self.text(card, tr("Select the wired ENET adapter connected to the car. Link-local and private IPv4 addresses are listed. The PC, gateway and HU must share its subnet. Network settings are not changed."), True)
         self.adapter_combo = ttk.Combobox(card, textvariable=self.adapter, state="readonly", width=70)
         self.adapter_combo.pack(fill="x", pady=(0, 8))
         self.controls.append((self.adapter_combo, "readonly"))

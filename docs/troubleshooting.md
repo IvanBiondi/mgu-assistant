@@ -9,7 +9,8 @@ Keep the car parked. Preserve the app's local state and private logs. After a co
 | Symptom | Next check |
 | --- | --- |
 | PC check cannot find OpenSSH | Install/enable the Windows OpenSSH Client using Windows Optional Features, then repeat the PC check |
-| No HU detected | Check ENET cable, adapter and selected interface; verify the vehicle is in the required powered state; an arbitrary `169.254.x.x` interface is not sufficient |
+| No HU detected | Check ENET cable, adapter and selected interface; verify the vehicle is in the required powered state. Current source supports link-local and RFC1918 private IPv4 subnets; beta.3 only lists link-local. PC, gateway and HU must share the selected adapter's actual subnet. A static PC address alone does not configure the HU. See [network configuration](../README.md#enet-network-configuration-in-the-current-source) |
+| Selected address missing or ambiguous / HU outside subnet | Run **Check PC and adapters** again after changing network settings. Select the wired ENET adapter. Resolve duplicate local addresses or mismatched IP/prefix settings independently; the assistant does not change addresses or routes |
 | Unsupported BTLD or uncertain architecture | Stop before writes; confirm HU_MGU/iDrive 7 and exact firmware against the project constraints |
 | SSH port open but login fails | Select the correct private key, check the server identity and run authenticated root verification; do not reflash to test authentication |
 | Flash button disabled after an attempt | Preserve the write journal; review the previous stage and fresh HU state. The block is intended to prevent accidental repeated writes |
