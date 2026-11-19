@@ -26,7 +26,7 @@ ZH_CN = {
     "Park the vehicle with the ignition on. Connect the ENET cable to the OBD port and the PC Ethernet adapter. The initial check only reads data; it does not enable SSH or flash the HU.": "停车并打开点火开关，将 ENET 线连接车辆 OBD 接口和电脑网卡。初步检查仅仅读取数据，不会启用 SSH 或刷写主机。",
     "Check PC and adapters": "检查电脑与网卡",
     "ENET Ethernet adapter": "ENET 网卡",
-    "Select the adapter connected to the car. Local 169.254.x.x addresses are listed. Wi-Fi and Internet settings are not changed.": "选择连接车辆的网卡。列表会显示本机的 169.254.x.x 地址，不会修改 Wi-Fi 或互联网设置。",
+    "Select the wired ENET adapter connected to the car. Link-local and private IPv4 addresses are listed. The PC, gateway and HU must share its subnet. Network settings are not changed.": "请选择连接车辆的有线 ENET 网卡。列表显示链路本地和私有 IPv4 地址。电脑、网关和主机必须处于该网卡的同一子网内。本工具不会修改网络设置。",
     "Read HU": "读取主机",
     "Head unit identification": "主机识别",
     "Not checked. No connection starts automatically.": "尚未检查，不会自动发起连接。",

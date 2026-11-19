@@ -2,9 +2,11 @@
 
 [简体中文说明](README.zh-CN.md)
 
-A Windows 11 desktop guide for checking a BMW **MGU head unit running iDrive 7**, preparing SSH access and installing [MGU Store](https://github.com/robertnisipeanu/mgu-store) through ENET. The interface, dialogs, application messages and offline guide are in **English**. An [Italian companion guide](README.it.md) is also available.
+A Windows 11 desktop assistant for BMW **HU_MGU running iDrive 7**: read-only ENET identification, guided SSH setup, coding-recovery checkpoints and offline [MGU Store](https://github.com/robertnisipeanu/mgu-store) installation. The current source supports **English and Simplified Chinese UI**, link-local ENET addresses and private static IPv4 subnets. Backend diagnostics and the offline HTML guide remain in English. [Italian](README.it.md) and [Simplified Chinese](README.zh-CN.md) companion guides are available.
 
-**Public beta: `v0.2.0-beta.3`. This is not a universal BMW installer.** Compatibility depends on the actual head unit and its firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting to a car. There is one owner-reported successful installation on an F44; other combinations are unverified. This release translates the application; it does not expand vehicle or firmware support.
+**Latest packaged beta: `v0.2.0-beta.3`. The changes on `main` described below are not included in that ZIP.** The Chinese localization (merged in [#2](https://github.com/IvanBiondi/mgu-assistant/pull/2)) and private-subnet support require running/building the current source until a newer release is published.
+
+**This is not a universal BMW installer.** Compatibility depends on the actual head unit and firmware, not just the car model or the appearance of the menus. Read [compatibility](docs/compatibility.md) before connecting. There is one owner-reported successful installation on an F44 and a read-only identification report for a 2021 X3M F97; the latter is not an installation validation. Localization and network support do not expand verified vehicle or firmware compatibility.
 
 This independent project is not BMW software and is not endorsed by BMW or the upstream projects. It does not promise a risk-free installation, warranty coverage or compatibility with every vehicle feature.
 
@@ -20,6 +22,25 @@ These are actual application screenshots from **demo mode**, using synthetic dat
 | ![Key and coding recovery screen in demo mode](docs/images/03-key.png) | ![Restart and verification screen in demo mode](docs/images/05-restart.png) |
 
 Open any image for a full-size view. Vehicle writes are disabled in every demo screen.
+
+## Languages in the current source
+
+Simplified Chinese system locales select the Chinese UI automatically; other locales use English. Set `MGU_UI_LANGUAGE` to `en` or `zh-CN` before starting the app to override detection, then restart it. Unknown text falls back to English. Backend/upstream diagnostics remain unchanged for troubleshooting.
+
+```powershell
+$env:MGU_UI_LANGUAGE = 'zh-CN'  # use 'en' for English
+python main.py --demo
+```
+
+The same variable applies to an executable built from the current source. The published beta.3 executable predates this feature. Chinese translation credit: 小白151 / 小白科技杂物社 / [JackieZ123430](https://github.com/JackieZ123430).
+
+## ENET network configuration in the current source
+
+Select the **wired adapter connected directly to the intended vehicle**. Active adapters with `169.254.0.0/16` (link-local) or private IPv4 addresses in `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16` are listed. Other private-network adapters can appear too: do not select your home Wi-Fi or a VPN.
+
+The app reads the selected adapter's actual Windows prefix and sends discovery only to that subnet's broadcast address, bound to its local IP. For example, `192.168.17.40/20` uses `192.168.31.255`, not a guessed `/24`. The gateway and HU must be usable addresses on that same subnet. Public/loopback/multicast addresses, ambiguous local addresses, multiple gateways and network/broadcast endpoints are rejected. Routed setups and `/31` or `/32` interfaces are not supported.
+
+This does not assign an address to the car or change Windows routes, firewall, Wi-Fi or Internet settings. A static PC address alone does not make a link-local HU reachable. Configure a matching direct ENET subnet independently, then run **Check PC and adapters** and **Read HU** again. Existing identity, firmware, SSH and write checks still apply. Network tests use simulated devices; no static-IP vehicle installation is claimed.
 
 ## Download and try it
 

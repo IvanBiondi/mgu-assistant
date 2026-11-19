@@ -11,7 +11,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_FILES = (
-    "main.py", "backend.py", "LICENSE", "README.md", "README.it.md",
+    "main.py", "backend.py", "i18n.py", "LICENSE", "README.md", "README.it.md", "README.zh-CN.md",
     "CONTRIBUTING.md", "SECURITY.md", "CHANGELOG.md", "THIRD_PARTY_NOTICES.md",
     "requirements.txt", "requirements-dev.txt", "upstream-lock.json",
     ".gitignore", ".gitattributes", "assets/app.ico", "resources/guida.html",
@@ -84,7 +84,7 @@ def main():
             for source in sorted((ROOT / directory).rglob("*")):
                 if source.is_file() and source.suffix in suffixes and "__pycache__" not in source.parts:
                     copy(source, destination / "source" / source.relative_to(ROOT))
-        for relative in ("README.md", "README.it.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md"):
+        for relative in ("README.md", "README.it.md", "README.zh-CN.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md"):
             if (ROOT / relative).is_file():
                 copy(ROOT / relative, destination / relative)
         for source in sorted((ROOT / "docs").rglob("*")):

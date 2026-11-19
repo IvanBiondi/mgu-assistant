@@ -15,7 +15,9 @@ $env:MGU_UI_LANGUAGE = 'zh-CN'
 python main.py --demo
 ```
 
-发行版同样支持此环境变量，在相同终端启动 `MGU-Assistant.exe` 即可。演示模式使用示例数据并阻止车辆操作。原后端与上游命令的诊断输出保留原文，便于排障。
+从当前源码构建的程序同样支持此环境变量，在相同终端启动 `MGU-Assistant.exe` 即可。已发布的 beta.3 ZIP 尚未包含中文界面和私有 IPv4 子网支持，请使用当前源码或等待新版。演示模式使用示例数据并阻止车辆操作。原后端与上游命令的诊断输出保留原文，便于排障。
+
+当前源码支持链路本地和 RFC1918 私有 IPv4 地址。请选择直连车辆的有线 ENET 网卡，电脑、网关和主机必须处于该网卡的同一子网。程序使用 Windows 实际子网前缀计算广播地址，不修改网络设置。更多说明见 [ENET 网络配置](README.md#enet-network-configuration-in-the-current-source)。
 
 ## 五步流程
 

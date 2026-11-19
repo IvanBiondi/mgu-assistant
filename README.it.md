@@ -4,6 +4,8 @@ Un programma per **Windows 11 x64**, con interfaccia in inglese, che accompagna 
 
 Dalla beta.3, pulsanti, conferme, messaggi e guida offline sono in inglese. Questa guida italiana resta disponibile come supporto. La traduzione non amplia la compatibilità con altre vetture o firmware.
 
+Il sorgente attuale aggiunge l'interfaccia in cinese semplificato (merge #2) e le sottoreti IPv4 private per ENET (#3). Queste modifiche **non sono incluse nello ZIP beta.3**: occorre usare o compilare il sorgente attuale. La lingua si seleziona anche tramite `MGU_UI_LANGUAGE=en` oppure `zh-CN`. Per gli indirizzi statici, PC, gateway e HU devono condividere la sottorete dell'adattatore ENET selezionato; il programma usa la maschera effettiva senza modificare le impostazioni di rete. Vedi [lingue e rete](README.md#languages-in-the-current-source).
+
 **Versione pubblica beta: `v0.2.0-beta.3`. La compatibilità con tutte le BMW iDrive 7 non è dimostrata.** Conta la head unit effettivamente montata, con le sue versioni software, non soltanto il modello dell'auto. È disponibile un solo resoconto positivo del proprietario su BMW F44. Leggi [compatibilità](docs/compatibility.md) prima di procedere.
 
 Il progetto è indipendente: non è un prodotto BMW e non è approvato da BMW o dagli autori dei progetti utilizzati. Non garantisce un'installazione senza rischi, la copertura della garanzia o il funzionamento di ogni dotazione.

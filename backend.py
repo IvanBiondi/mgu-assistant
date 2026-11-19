@@ -30,6 +30,8 @@ CREATE_NO_WINDOW = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 VIN_RE = re.compile(r'^[A-HJ-NPR-Z0-9]{17}$')
 ROOT_COMMIT = 'a4aa8932f1a61e784b761ea04ecc64f82c87a0d3'
 FLASH_ATTEMPT_ENV = 'MGU_ASSISTANT_FLASH_ATTEMPT'
+ENET_NETWORKS = tuple(ipaddress.ip_network(cidr) for cidr in (
+    '169.254.0.0/16', '10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'))
 
 
 class BackendError(RuntimeError):
@@ -41,9 +43,50 @@ def validate_ip(value: str) -> str:
         ip = ipaddress.ip_address(str(value).strip())
     except ValueError as exc:
         raise BackendError('Enter a valid ENET IPv4 address.') from exc
-    if ip.version != 4 or not ip.is_link_local or int(ip) & 0xFFFF in (0, 0xFFFF):
-        raise BackendError('Only ENET 169.254.x.x addresses are allowed.')
+    if ip.version != 4 or not any(ip in network and ip not in (
+            network.network_address, network.broadcast_address) for network in ENET_NETWORKS):
+        raise BackendError('Use an ENET link-local or private IPv4 address (169.254, 10, 172.16-31 or 192.168).')
     return str(ip)
+
+
+def adapter_network(address, prefix_length):
+    """Use the actual Windows prefix; never guess /24 or broadcast outside ENET."""
+    address = validate_ip(address)
+    if type(prefix_length) is not int or not 1 <= prefix_length <= 30:
+        raise BackendError('The ENET adapter needs a valid IPv4 subnet prefix (1-30).')
+    network = ipaddress.ip_network(f'{address}/{prefix_length}', strict=False)
+    if not any(network.subnet_of(allowed) for allowed in ENET_NETWORKS):
+        raise BackendError('The ENET subnet must stay within a link-local or private IPv4 range.')
+    if ipaddress.ip_address(address) in (network.network_address, network.broadcast_address):
+        raise BackendError('A network or broadcast address cannot identify the ENET adapter.')
+    return network
+
+
+def validate_peer(address, network, local_ip):
+    address = validate_ip(address)
+    ip = ipaddress.ip_address(address)
+    if ip not in network or ip in (network.network_address, network.broadcast_address) or address == local_ip:
+        raise BackendError('The gateway and HU must be distinct hosts on the selected ENET subnet.')
+    return address
+
+
+def enet_adapters():
+    """Read current address/prefix pairs without changing Windows network settings."""
+    command = "[Console]::OutputEncoding=[Text.UTF8Encoding]::new(); $ErrorActionPreference='Stop'; $a=@(Get-NetAdapter | Where-Object Status -eq 'Up'); @(Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.InterfaceIndex -in $a.ifIndex} | ForEach-Object {[pscustomobject]@{name=$_.InterfaceAlias;index=$_.InterfaceIndex;ip=$_.IPAddress;prefix_length=[int]$_.PrefixLength}}) | ConvertTo-Json -Compress"
+    ps = str(Path(os.environ.get('SystemRoot', r'C:\Windows'))/'System32/WindowsPowerShell/v1.0/powershell.exe')
+    result = _run([ps, '-NoProfile', '-NonInteractive', '-Command', command], timeout=25)
+    if result.returncode:
+        raise BackendError('Windows could not read the network adapters. Run as administrator. '+result.stderr.strip())
+    parsed = json.loads(result.stdout.lstrip('\ufeff').strip() or '[]')
+    adapters = parsed if isinstance(parsed, list) else [parsed]
+    usable = []
+    for item in adapters:
+        try:
+            adapter_network(item['ip'], item['prefix_length'])
+        except (BackendError, KeyError, TypeError):
+            continue
+        usable.append(item)
+    return usable
 
 
 def validate_vin(value: str) -> str:
@@ -390,13 +433,7 @@ class Backend:
             ssh_text = (version.stdout + version.stderr).strip()
         except BackendError:
             ssh_text = ''
-        command = "[Console]::OutputEncoding=[Text.UTF8Encoding]::new(); $ErrorActionPreference='Stop'; $a=@(Get-NetAdapter | Where-Object Status -eq 'Up'); @(Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -like '169.254.*' -and $_.InterfaceIndex -in $a.ifIndex} | ForEach-Object {[pscustomobject]@{name=$_.InterfaceAlias;index=$_.InterfaceIndex;ip=$_.IPAddress}}) | ConvertTo-Json -Compress"
-        ps = str(Path(os.environ.get('SystemRoot', r'C:\Windows'))/'System32/WindowsPowerShell/v1.0/powershell.exe')
-        result = _run([ps, '-NoProfile', '-NonInteractive', '-Command', command], timeout=25)
-        if result.returncode:
-            raise BackendError('Windows could not read the network adapters. Run as administrator. '+result.stderr.strip())
-        parsed = json.loads(result.stdout.lstrip('\ufeff').strip() or '[]')
-        adapters = parsed if isinstance(parsed, list) else [parsed]
+        adapters = enet_adapters()
         self.log(f'OpenSSH: {ssh_text or "not found"}; active ENET adapters: {len(adapters)}.')
         return {'ssh': ssh_text, 'admin': is_admin(), 'adapters': adapters}
 
@@ -411,13 +448,17 @@ class Backend:
             self.log('DEMO: sample data; no packets sent to the network.')
             return result
         self.verify_files()
+        matches = [item for item in enet_adapters() if item['ip'] == local_ip]
+        if len(matches) != 1:
+            raise BackendError('The selected ENET address is missing or ambiguous. Check PC and adapters again.')
+        network = adapter_network(local_ip, matches[0]['prefix_length'])
         discovery, hsfz, diag = self._load_upstream()
         found = {}
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp:
             udp.bind((local_ip, 0))
             udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             udp.settimeout(.2)
-            udp.sendto(discovery.PROBE, ('169.254.255.255', discovery.DISCOVERY_PORT))
+            udp.sendto(discovery.PROBE, (str(network.broadcast_address), discovery.DISCOVERY_PORT))
             end = time.monotonic()+2.5
             while time.monotonic() < end:
                 try:
@@ -425,8 +466,12 @@ class Backend:
                 except socket.timeout:
                     continue
                 vin = discovery.parse_reply(data)
-                if vin and VIN_RE.fullmatch(vin) and address[0].startswith('169.254.'):
-                    found[address[0]] = vin
+                if vin and VIN_RE.fullmatch(vin):
+                    try:
+                        peer = validate_peer(address[0], network, local_ip)
+                    except BackendError:
+                        continue
+                    found[peer] = vin
         if len(found) != 1:
             raise BackendError('No ENET gateway detected.' if not found else 'Multiple gateways detected: stop and connect only the intended vehicle.')
         gateway, vin = next(iter(found.items()))
@@ -446,7 +491,7 @@ class Backend:
         client.connect()
         try:
             svk = diag.read_svk(client)
-            hu_ip = validate_ip(diag.read_mgu_ip(client)[0])
+            hu_ip = validate_peer(diag.read_mgu_ip(client)[0], network, local_ip)
         finally:
             client.close()
         records = [{'type': r.name, 'id': r.version_hex(), 'version': r.trip_text()} for r in svk.records]

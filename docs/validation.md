@@ -1,5 +1,17 @@
 # Validation records
 
+## Unreleased — merged localization and private ENET subnets
+
+Local checks on Windows 11 x64 / Python 3.12.10, 2026-11-19:
+
+- All 70 regression tests passed in both `en` and `zh-CN`, with simulated vehicle I/O. Ten new network tests cover private/link-local addresses, actual subnet broadcasts (including `/20`), interface binding, Windows JSON parsing, missing/ambiguous local addresses, multiple gateways and off-subnet/invalid peers.
+- Source and frozen self-tests and all five demo screens passed in both languages, including UTF-8 self-test output under a CP1252 parent environment.
+- PyInstaller 6.22.3 built successfully; 10,769 frozen code objects had no absolute build filenames.
+- The local package included `source/i18n.py`, `source/README.zh-CN.md` and the top-level Chinese guide; all 1,236 package file hashes verified.
+- The same 18 upstream artifact pins and 58 prepared resource files verified. No upstream resource versions or write procedures were changed.
+
+The local package is a development verification artifact, not a replacement for the published beta.3 ZIP. No vehicle was contacted, no static-IP vehicle installation was performed, and the F97 report in #1 remains read-only evidence rather than firmware or original-function validation.
+
 ## v0.2.0-beta.3 — English interface
 
 Checks completed on Windows 11 x64 with Python 3.12.10 on 2026-11-10:
